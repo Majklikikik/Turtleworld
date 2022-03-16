@@ -109,7 +109,7 @@ function craftTurtle(recipeID, count)
     turtle.craft()
 
     countInventory()
-    turtle.select(slot["computercraft:turtle_normal"])
+    turtle.select(inventory_slot["computercraft:turtle_normal"])
     turtle.transferTo(13)
 
     sumInventoryAndAllChests()

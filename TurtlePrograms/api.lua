@@ -6,43 +6,46 @@ require("init")
 require("logger")
 require("crafting")
 
--- shall be called by the planner at the start once
--- args[0] = x, args[1] = y, args[2] = z, args[3] = direction. If args are empty, default values are used
-function Initiate(args)
-    init_turtle(args)
-    turn(directions["EAST"])
-    setupChests()
-    writeChestFile()
-end
 
 function InitiateChests()
-    goal = {}
-    goal["log"] = 6
-    gather_wood(goal, true)
-
-    navigate(home)
-    for i = 1, 16 do
-        if turtle.getItemDetail(i) ~= nil then
-            local name = turtle.getItemDetail(i).name
-            local quantity = turtle.getItemDetail(i).count
-
-            local has_wood = false
-            if not is_wood(name) or has_wood or (is_wood(name) and quantity < 6 ) then
-                turtle.select(i)
-                turtle.drop()
-            elseif is_wood(name) and quantity >= 6 and not has_wood then
-                --drop till 6quantity
-                turtle.select(i)
-                turtle.drop(quantity - 6)
-                has_wood = true
-            end
-        end
+    --Collect 6 times Wood, should be of the same Type
+    local chunkNum=1
+    while not lookInChunkForWood(chunkNum,6,false,true) do
+        chunkNum=chunkNum + 1
+    end
+    countInventory()
+    local chestCount
+    local toKeep = {}
+    if inventory_inv["minecraft:birch_log"]~=nil and inventory_inv["minecraft:birch_log"]>=6 then
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:birch_log"]))
+        toKeep["minecraft:birch_log"]=chestCount*2
+    elseif inventory_inv["minecraft:spruce_log"]~=nil and inventory_inv["minecraft:spruce_log"]>=6 then
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:spruce_log"]))
+        toKeep["minecraft:spruce_log"]=chestCount*2
+    elseif inventory_inv["minecraft:oak_log"]~=nil and inventory_inv["minecraft:oak_log"]>=6 then
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:oak_log"]))
+        toKeep["minecraft:oak_log"]=chestCount*2
+    elseif inventory_inv["minecraft:jungle_log"]~=nil and inventory_inv["minecraft:jungle_log"]>=6 then
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:jungle_log"]))
+        toKeep["minecraft:jungle_log"]=chestCount*2
+    elseif inventory_inv["minecraft:acacia_log"]~=nil and inventory_inv["minecraft:acacia_log"]>=6 then
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:acacia_log"]))
+        toKeep["minecraft:acacia_log"]=chestCount*2
+    elseif inventory_inv["minecraft:dark_oak_log"]~=nil and inventory_inv["minecraft:dark_oak_log"]>=6 then
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:dark_oak_log"]))
+        toKeep["minecraft:dark_oak_log"]=chestCount*2
+    else
+        log("Error, somehow didn't get 6 of the same wood type")
     end
 
-    craft("minecraft:startPlanks", 24) -- Fails if more than 6 logs are in inventory
-    craft("minecraft:startChest", 3)
+    log("Going to Chestbase: "..basespots_chestBase.x..":"..basespots_chestBase.y..":"..basespots_chestBase.z)
+    go_towards(basespots_chestBase)
+    dropEverythinExcept(toKeep)
+    log("Crafting "..chestCount.." chests!")
+    craft("minecraft:startPlanks", 8*chestCount) -- Fails if more than 6 logs are in inventory
+    craft("minecraft:startChest", chestCount)
 
-    for _ = 1, 3 do
+    for _ = 1, chestCount do
         PlaceChest()
     end
 
@@ -80,18 +83,15 @@ function PlaceFurnace()
     getmissing()
     build_furnace()
     go_towards(home)
-    turn(directions["EAST"])
 end
 
 -- Requirement: Chest in Inventory
 -- Reward: Storage System yay
 function PlaceChest()
-
     itemsWanted["minecraft:chest"] = 1
     getmissing()
     build_chest()
-    go_towards(home)
-    turn(directions["EAST"])
+    while move_down(false) do end
 end
 
 

@@ -4,32 +4,18 @@
 
 
 function init_turtle(arg)
+
 	if arg ~= nil and #arg == 4 then
 		current_pos = vector.new(arg[1], arg[2], arg[3])
-		current_dir = directions[tostring(arg[4])]
+		current_dir = arg[4]
 	else
-		current_pos = vector.new(0, getYPos(),0)
+		current_pos = vector.new(11, getYPos(),11)
 		current_dir = directions["EAST"]
 	end
+	setHouseGroundLevel(current_pos.y)
 	write_pos()
-
-	spiral = {}
-	spiral["progress"] = 1
-	spiral["dir"] = directions["SOUTH"]  --default value
-	spiral["ring"] = 5
-	spiral["pos"] = vector.new(current_pos.x -5, current_pos.y, current_pos.z)
-	local w = fs.open("gathering.txt", "w")
-	w.write(textutils.serialize(spiral))
-	w.close()
-
-	mining = {}
-	mining["pos"] = vector.new(current_pos.x,8,current_pos.z) -- starting mining spot  -- change to layer 5 i guess
-	mining["height"] = 0  -- leave at 0 unless you know what you are doing
-	mining["tunnel_length"] = 32 -- change later accordingly
-	mining["mining_height"] = 5
-	local wm = fs.open("mining.txt", "w")
-	wm.write(textutils.serialize(mining))
-	wm.close()
+	setupChests()
+	writeChestFile()
 end
 
 

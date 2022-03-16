@@ -18,7 +18,7 @@ function arrangeInventoryToRecipe()
 	log("Arranging Inventory to craft "..count.." times.")
 	verbose=true
 	for i=1,16 do
-		if items[i]~=nil then
+		if inventory_items[i]~=nil then
 			turtle.select(i)
 			for y=1,3 do
 				for x=1,3 do
@@ -65,14 +65,14 @@ function setRecipe(id,c)
 	elseif (id=="minecraft:startChest")
 	then
 		rec={{planks,planks,planks},{planks,nil,planks},{planks,planks,planks}}
-		maxCount=3
+		maxCount=8
 		--count=math.min(count,maxCount)
 		mult=1
 		recalculateItemsNeeded()
 		return true;
 	elseif (id=="minecraft:startPlanks")
 	then
-		rec={ { nil,nil,nil},{nil,wood,nil },{nil,nil,nil}}
+		rec={ { nil,nil,nil},{nil,woods,nil },{nil,nil,nil}}
 		maxCount=256
 		--count=math.min(count,maxCount)
 		mult=4

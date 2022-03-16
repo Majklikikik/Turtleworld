@@ -1,10 +1,6 @@
 require("req")
-Initiate()
---Initiate(0,65,0,0)
-
+--Initiate()
+init_turtle({11,63,11,directions["NORTH"]})
+--init_turtle()
+log(current_dir)
 InitiateChests()
-
-goal = {}
-goal["log"]=4
-goal["sand"]=6
-Gather(goal)

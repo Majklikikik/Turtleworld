@@ -33,6 +33,11 @@ function getStackTrace(depht, minus)
 end
 
 function spiralNumberToCoordinate(num)
+    local a=spiralNumberToCoordinateArray(num)
+    return vector.new(a[1],a[2])
+end
+
+function spiralNumberToCoordinateArray(num)
     if num==1 then
         return {0,0}
     end

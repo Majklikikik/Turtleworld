@@ -19,26 +19,19 @@ function build_furnace()
 end
 -- requirement is, that there is a chest in the storage system
 function build_chest()
-
-
     dir =  ( (chests["count"] % 4) +1) % 4
     turn(dir)
     height = math.floor(chests["count"] / 4) + 1
     for _ = 1, height do
         move_up()
     end
-
     turtle.dig()
     select("minecraft:chest")
     turtle.place()
-
     addChestToData()
-
     for _ = 1, height do
         move_down()
     end
-
-
 end
 
 function select(itemid)

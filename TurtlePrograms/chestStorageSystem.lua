@@ -9,14 +9,14 @@ reserved ={} --contains items reserved for crafting and thus not available
 function writeChestFile()
 	--saves the chests table to file
 	log(" Writing Chest File ")
-	local h=fs.open("chests.michi","w")
+	local h=fs.open("../chests.michi","w")
 	h.write(textutils.serialize(chests))
 	h.close()
 end
 
 function readChestFile()
 	--read the chests table from file
-	local h=fs.open("Chests.michi","r")
+	local h=fs.open("../chests.michi","r")
 	chests=textutils.unserialize(h.readAll())
 	h.close()
 end
@@ -170,7 +170,7 @@ function storeRest()
 
 --check, in which chests to put which items
 	for i=1,16 do
-		local it=items[i]
+		local it= inventory_items[i]
 		if it~=nil then
 			local putCount=it.count
 			if tmp[it["name"]]~=nil then
@@ -206,7 +206,7 @@ function storeRest()
 					--log("Putting designated items to chest ",i)
 					turtle.select(j)
 					turtle.drop(itemsDesignatedForChest[i][j])
-					addItemToChest(i,items[j].name,itemsDesignatedForChest[i][j])
+					addItemToChest(i, inventory_items[j].name,itemsDesignatedForChest[i][j])
 					itemsDesignatedForChest[i][j]=nil
 				end
 			end
@@ -215,7 +215,7 @@ function storeRest()
 					--log("Putting undesignated items to chest",i)
 					turtle.select(j)
 					turtle.drop(itemsToStoreInAnyChest[j])
-					addItemToChest(i,items[j].name,itemsToStoreInAnyChest[j])
+					addItemToChest(i, inventory_items[j].name,itemsToStoreInAnyChest[j])
 					itemsToStoreInAnyChest[j]=nil
 				else
 					break
@@ -235,10 +235,10 @@ function getFromChests(itemname, count)
 	for i,_ in pairs(itemsWanted) do
 		itemsWanted[i]=nil
 	end
-	if inv[itemname]==nil then
+	if inventory_inv[itemname]==nil then
 		itemsWanted[itemname]=count
 	else
-		itemsWanted[itemname]=inv[itemname]+count
+		itemsWanted[itemname]= inventory_inv[itemname]+count
 	end
 	getmissing()
 end
@@ -250,8 +250,8 @@ function getmissing()
 	for i,_ in pairs(itemsWanted) do
 		log("Item Wanted: "..i.." count "..itemsWanted[i])
 		tmp[i]=itemsWanted[i]
-		if inv[i]~=nil then
-			tmp[i]=tmp[i]-inv[i]
+		if inventory_inv[i]~=nil then
+			tmp[i]=tmp[i]- inventory_inv[i]
 			if tmp[i]==0 then
 				tmp[i]=nil
 			end
@@ -409,10 +409,10 @@ function sumInventoryAndAllChests()
 	end
 	--log("Counting in inventory")
 	--count from inventory
-	for i,_ in pairs(inv) do
+	for i,_ in pairs(inventory_inv) do
 		--log(i)
 		--log(items[i])
-		totalItemCounts[i]=inv[i]
+		totalItemCounts[i]= inventory_inv[i]
 	end
 	--log("Counting in chests")
 	--count from chests

@@ -1,19 +1,42 @@
-function lookInCurrentChunkForWood(woodCount, collectingSaplings)
+function lookInChunkForWood(chunkNum,woodCount, collectingSaplings, mustBeSameTreeType)
+    goFromHouseLeavingPointToChunk(chunkNum)
+    return lookInCurrentChunkForWood(woodCount, collectingSaplings, mustBeSameTreeType)
+end
+
+
+function lookInCurrentChunkForWood(woodCount, collectingSaplings, mustBeSameTreeType)
+    -- return values: true - got all Wood, Chunk not Cleared
+    -- false - Chunk cleared, searching
+    if woodCount == nil then woodCount =256 end
+    if collectingSaplings == nil then collectingSaplings = false end
+    if mustBeSameTreeType == nil then mustBeSameTreeType = false end
     -- assume a spawn on the lower left (x and z minimal within the chunk)
     turn(directions["NORTH"])
     for i=1,8 do
         for i=1,15 do
-            checkTreeAndMove()
+            if collectingSaplings then turtle.suck() end
+            if checkTreeAndMove() then
+                if countLogs(mustBeSameTreeType) >= woodCount then return true end
+            end
         end
         turn_right()
-        checkTreeAndMove()
+        if collectingSaplings then turtle.suck() end
+        if checkTreeAndMove() then
+            if countLogs(mustBeSameTreeType) >= woodCount then return true end
+        end
         turn_right()
         for i=1,15 do
-            checkTreeAndMove()
+            if collectingSaplings then turtle.suck() end
+            if checkTreeAndMove() then
+                if countLogs(mustBeSameTreeType) >= woodCount then return true end
+            end
         end
         if i~=8 then
             turn_left()
-            checkTreeAndMove()
+            if collectingSaplings then turtle.suck() end
+            if checkTreeAndMove() then
+                if countLogs(mustBeSameTreeType) >= woodCount then return true end
+            end
             turn_left()
         end
     end
@@ -46,7 +69,9 @@ function checkTreeAndMove()
 
     moveOverGround()
     local a,b=turtle.inspectDown()
+    local gotSomething = false
     while a and isTreePart(b) do
+        gotSomething = true
         move_down()
         for i=1,4 do
             local c,d=turtle.inspect()
@@ -57,6 +82,7 @@ function checkTreeAndMove()
         end
         a,b=turtle.inspectDown()
     end
+    return gotSomething
 end
 
 function isTreePart(block)

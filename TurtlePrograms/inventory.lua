@@ -1,19 +1,19 @@
 require("itemstacksizesAndMaxCounts")
-inv={} --inv[itemname], contains count
-items={} --array of itemdetails
-slot={} --slot[itemname] tells in which slot <itemname> is
+inventory_inv ={} --inv[itemname], contains count
+inventory_items ={} --array of itemdetails
+inventory_slot ={} --slot[itemname] tells in which slot <itemname> is
 
-mined = {}
+inventory_mined = {}
 
 function resetInv()
-	for i,_ in pairs(inv) do
-		inv[i]=nil
+	for i,_ in pairs(inventory_inv) do
+		inventory_inv[i]=nil
 	end
-	for i,_ in pairs(slot) do
-		slot[i]=nil
+	for i,_ in pairs(inventory_slot) do
+		inventory_slot[i]=nil
 	end
-	for i,_ in pairs(items) do
-		items[i]=nil
+	for i,_ in pairs(inventory_items) do
+		inventory_items[i]=nil
 	end
 end
 
@@ -22,21 +22,21 @@ function countInventory()
 	resetInv()
 	for i=1,16 do
 		det=turtle.getItemDetail(i)
-		items[i]=det
+		inventory_items[i]=det
 		if det~=nil then
 			--log(det)
-			if inv[det.name]==nil
-			then 
-				inv[det.name]=det.count
-				slot[det.name]=i
+			if inventory_inv[det.name]==nil
+			then
+				inventory_inv[det.name]=det.count
+				inventory_slot[det.name]=i
 			else
-				before=inv[det.name]
+				before= inventory_inv[det.name]
 				toPut=math.min(getStackSize(det.name)-before, det.count)
-				inv[det.name]=inv[det.name]+det.count
+				inventory_inv[det.name]= inventory_inv[det.name]+det.count
 				turtle.select(i)
-				turtle.transferTo(slot[det.name])
-				items[slot[det.name]].count=items[slot[det.name]].count+toPut
-				items[i]=turtle.getItemDetail()
+				turtle.transferTo(inventory_slot[det.name])
+				inventory_items[inventory_slot[det.name]].count= inventory_items[inventory_slot[det.name]].count+toPut
+				inventory_items[i]=turtle.getItemDetail()
 			end
 		end
 	end
@@ -59,8 +59,8 @@ function sortInventory(reverse)
 	--items in the last slots, first slots empty
 	countInventory()
 	local j=16
-	while items[j]~=nil do 
-		j=j-1 
+	while inventory_items[j]~=nil do
+		j=j-1
 	end
 	for i=1,16 do
 		if i>=j then
@@ -72,17 +72,35 @@ function sortInventory(reverse)
 		if reverse then k=17-i end
 		if reverse then l=17-j end
 
-		if items[k]~=nil then
+		if inventory_items[k]~=nil then
 			turtle.select(k)
 			turtle.transferTo(l)
-			items[l]=items[k]
-			items[k]=nil
-			while items[l]~=nil do
+			inventory_items[l]= inventory_items[k]
+			inventory_items[k]=nil
+			while inventory_items[l]~=nil do
 				l=l-1
 			end
 		end
 	end
 	countInventory()
+end
+
+function dropEverythinExcept(itemsToKeep)
+	for i=1,16 do
+		id=turtle.getItemDetail(i)
+		if id~=nil then
+			c=id.count
+			if itemsToKeep[id.name] == nil then
+				turtle.select(i)
+				turtle.drop()
+			else
+				dropCount=math.max(0,c-itemsToKeep[id.name])
+				turtle.select(i)
+				turtle.drop(dropCount)
+				itemsToKeep[id.name]=itemsToKeep[id.name]-dropCount
+			end
+		end
+	end
 end
 
 function dropAbundantItems(withSorting)
@@ -113,26 +131,36 @@ function dropAbundantItems(withSorting)
 end
 
 
-function countLogs()
+function countLogs(mustBeSameTreeType)
+	if mustBeSameTreeType == nil then mustBeSameTreeType = false end
 	countInventory()
 	local logs = 0
-	logs = logs + countOf("minecraft:spruce_log")
-	logs = logs + countOf("minecraft:birch_log")
-	logs = logs + countOf("minecraft:oak_log")
-	logs = logs + countOf("minecraft:jungle_log")
-	logs = logs + countOf("minecraft:acacia_log")
-	logs = logs + countOf("minecraft:dark_oak_log")
+	if mustBeSameTreeType then
+		logs = math.max(logs , countOf("minecraft:spruce_log"))
+		logs = math.max(logs , countOf("minecraft:birch_log"))
+		logs = math.max(logs , countOf("minecraft:oak_log"))
+		logs = math.max(logs , countOf("minecraft:jungle_log"))
+		logs = math.max(logs , countOf("minecraft:acacia_log"))
+		logs = math.max(logs , countOf("minecraft:dark_oak_log"))
+	else
+		logs = logs + countOf("minecraft:spruce_log")
+		logs = logs + countOf("minecraft:birch_log")
+		logs = logs + countOf("minecraft:oak_log")
+		logs = logs + countOf("minecraft:jungle_log")
+		logs = logs + countOf("minecraft:acacia_log")
+		logs = logs + countOf("minecraft:dark_oak_log")
+	end
 	return logs
 end
 function countOf(itemname)
-	if inv[itemname]==nil then return 0	end
-	return inv[itemname]
+	if inventory_inv[itemname]==nil then return 0	end
+	return inventory_inv[itemname]
 end
 
 function saveExtraMined(item, quantity)
 	done = false
-    countInventory()
-    dropAbundantItems()
+	countInventory()
+	dropAbundantItems()
 	for i = 1,16 do
 		name = turtle.getItemDetail(i).name
 		count = turtle.getItemDetail(i).count
