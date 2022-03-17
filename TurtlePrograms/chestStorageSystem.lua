@@ -9,14 +9,14 @@ reserved ={} --contains items reserved for crafting and thus not available
 function writeChestFile()
 	--saves the chests table to file
 	log(" Writing Chest File ")
-	local h=fs.open("../chests.michi","w")
+	local h=fs.open("chests.michi","w")
 	h.write(textutils.serialize(chests))
 	h.close()
 end
 
 function readChestFile()
 	--read the chests table from file
-	local h=fs.open("../chests.michi","r")
+	local h=fs.open("chests.michi","r")
 	chests=textutils.unserialize(h.readAll())
 	h.close()
 end
@@ -83,8 +83,8 @@ function gotoChest(index)
 		chestMovement_moveBackwards()
 	end
 
-	lr=(index-1)%4
-	k=(lr-chests["rot"]+8)%4
+	local lr=(index-1)%4
+	local k=(lr-chests["rot"]+8)%4
 	if k==3 then chestMovement_turnLeft()
 	else
 		while k>0 do
@@ -128,18 +128,18 @@ end
 function inventur()
 	--turtle should have empty inventory when using this methods
 	--counts chests, checks their content, saves all info to file
-	i=1
+	local i=1
 	setupChests()
 	while true do
 		gotoChest(i)
 		turtle.select(1)
-		suc, dat=turtle.inspect()
+		local suc, dat=turtle.inspect()
 		if suc and dat.name=="minecraft:chest" then
 			addChestToData()
 			for _=1,8 do turtle.suck() end
 			for j=1,8 do
 				turtle.select(j)
-				d=turtle.getItemDetail()
+				local d=turtle.getItemDetail()
 				if d~=nil then
 					chests[i].items[j]=d
 					turtle.drop()
@@ -162,7 +162,7 @@ function storeRest()
 	--stores everything, which is not needed for the recipe, in chests
 	itemsDesignatedForChest={} --itemsDesignatedForChest[3]=List of items, which should be put in Chest 3
 	itemsToStoreInAnyChest={}
-	tmp={} -- List of items needed for crafting, local copy
+	local tmp={} -- List of items needed for crafting, local copy
 	for i,_ in pairs(itemsWanted) do
 		tmp[i]=itemsWanted[i]
 	end
@@ -231,7 +231,7 @@ end
 function getFromChests(itemname, count)
 	if count==0 then return end
 	log("Getting "..count.." of "..itemname.." from chests")
-	sortInventory()
+	countAndSortInventory()
 	for i,_ in pairs(itemsWanted) do
 		itemsWanted[i]=nil
 	end
@@ -245,7 +245,7 @@ end
 
 function getmissing()
 	log("Getting missing items!")
-	sortInventory()
+	countAndSortInventory()
 	local tmp={} -- List of items needed for crafting, local copy
 	for i,_ in pairs(itemsWanted) do
 		log("Item Wanted: "..i.." count "..itemsWanted[i])
@@ -323,7 +323,7 @@ function getmissing()
 				chests[i].items[j]=nil
 			end
 			chests[i].stackCount=ind-1
-			sortInventory()
+			countAndSortInventory()
 		end
 	end
 	gotoStart()
@@ -334,7 +334,7 @@ end
 function addItemToChest(chest,name,count)
 	-- 
 	for i=1,8 do
-		t=chests[chest].items[i]
+		local t=chests[chest].items[i]
 		if t==nil then
 			chests[chest].stackCount=chests[chest].stackCount+1
 			chests[chest].items[i]={name=name,count=count}
@@ -373,17 +373,17 @@ function getItemsFor( itemname, count )
 	for i,_ in pairs(itemsWanted) do
 		itemsWanted[i]=nil
 	end
-	for i,_ in pairs(itemsNeeded) do
-		if i=="woods" then
-			local tmp=itemsNeeded[i]
+	for i,_ in pairs(recipes_itemsNeeded) do
+		if i==woodsName then
+			local tmp= recipes_itemsNeeded[i]
 			for _,k in pairs(woods) do
 				if (tmp>0 and totalItemCounts[k]~=nil and totalItemCounts[k]>0) then
 					itemsWanted[k]=math.min(totalItemCounts[k],tmp)
 					tmp=tmp-itemsWanted[k]
 				end
 			end
-		elseif i=="planks" then
-			local tmp=itemsNeeded[i]
+		elseif i==planksName then
+			local tmp= recipes_itemsNeeded[i]
 			for _,k in pairs(planks) do
 				if (tmp>0 and totalItemCounts[k]~=nil and totalItemCounts[k]>0) then
 					itemsWanted[k]=math.min(totalItemCounts[k],tmp)
@@ -391,7 +391,7 @@ function getItemsFor( itemname, count )
 				end
 			end
 		else
-			itemsWanted[i]=itemsNeeded[i]
+			itemsWanted[i]= recipes_itemsNeeded[i]
 		end
 	end
 	--store the rest in chests

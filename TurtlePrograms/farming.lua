@@ -1,4 +1,5 @@
 function lookInChunkForWood(chunkNum,woodCount, collectingSaplings, mustBeSameTreeType)
+    log("Farming Wood in Chunk "..chunkNum)
     goFromHouseLeavingPointToChunk(chunkNum)
     return lookInCurrentChunkForWood(woodCount, collectingSaplings, mustBeSameTreeType)
 end
@@ -98,4 +99,7 @@ function isTreePart(block)
             or block.name=="minecraft:jungle_log"
             or block.name=="minecraft:acacia_log"
             or block.name=="minecraft:dark_oak_log"
+
+            or block.name=="myrtrees:rubberwood_log"
+            or block.name=="myrtrees:rubberwood_leaves"
 end

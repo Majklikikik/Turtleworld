@@ -58,7 +58,7 @@ function move_forward(force)
 		inWay, block = turtle.inspect()
 		if inWay then
 			if force==false then return false end
-			if block["name"]=="computercraft:turtle_normal" then
+			if blockNameIsTurtle(block["name"]) then
 				sleep(1)
 			else
 				turtle.dig()
@@ -86,7 +86,7 @@ function move_up(force)
 		inWay, block = turtle.inspectUp()
 		if inWay then
 			if force==false then return false end
-			if block["name"]=="computercraft:turtle_normal" then
+			if blockNameIsTurtle(block["name"]) then
 				sleep(1)
 			else
 				turtle.digUp()
@@ -105,7 +105,7 @@ function move_down(force)
 		inWay, block = turtle.inspectDown()
 		if inWay then
 			if force==false then return false end
-			if block["name"]=="computercraft:turtle_normal" then
+			if blockNameIsTurtle(block["name"]) then
 				move_forward()
 				sleep(1)
 				turn_left()
@@ -122,6 +122,14 @@ function move_down(force)
 	return true
 end
 
+function blockNameIsTurtle(name)
+	return name=="computercraft:turtle_normal"
+end
+
+function notTurtleName(name)
+	return not blockNameIsTurtle(name)
+end
+
 function move_back(force)
 	if force==nil then force=true end
 	while not turtle.back() do
@@ -132,7 +140,7 @@ function move_back(force)
 		turn_left()
 		inWay, block = turtle.inspect()
 		if inWay then
-			if block["name"]=="computercraft:turtle_normal" then
+			if blockNameIsTurtle(block["name"]) then
 				sleep(1)
 			else
 				turtle.dig()
@@ -178,50 +186,70 @@ function turn_right()
 end
 
 function goFromHouseLeavingPointToChunk(chunkNum)
+	log("Moving to Chunk"..chunkNum)
 	local coordinate= spiralNumberToCoordinate(chunkNum)*16
 	goFromHouseLeavingPointToOutsidePointOverground(coordinate)
 end
 
 function goFromHouseLeavingPointToOutsidePointUnderground(pos)
-	goToCoordinates(17,houseGroundLevel,-2)
-	goToCoordinates(pos)
+	navigateCoordinates(17,houseGroundLevel,-2)
+	navigateCoordinates(pos)
 end
 
 function goFromHouseLeavingPointToOutsidePointOverground(pos)
 	if pos.x<houseTo.x and pos.x>houseFrom.x and pos.z > houseFrom.z then
-		goToCoordinates(current_pos.x, houseGroundLevel, -2)
-		goToCoordinates(houseTo.x+2, houseGroundLevel, -2)
-		goToCoordinatesOnGround(pos.x, pos.z )
+		navigateCoordinates(current_pos.x, houseGroundLevel, -2)
+		navigateCoordinates(houseTo.x+2, houseGroundLevel, -2)
+		navigateOnGroundToCoordinates(pos.x, pos.z )
+		return
 	end
 	if pos.x< current_pos.x then
-		goToCoordinates(pos.x,houseGroundLevel,-2)
-		goToCoordinatesOnGround(pos.x,pos.z)
+		navigateCoordinates(pos.x,houseGroundLevel,-2)
+		navigateOnGroundToCoordinates(pos.x,pos.z)
 	else
-		goToCoordinates(pos.x,houseGroundLevel,-1)
-		goToCoordinatesOnGround(pos.x,pos.z)
+		navigateCoordinates(pos.x,houseGroundLevel,-1)
+		navigateOnGroundToCoordinates(pos.x,pos.z)
 	end
+end
+
+function goFromOutsideToChestPoint()
+	if current_pos.x<houseTo.x and current_pos.x>houseFrom.x and current_pos.z > houseFrom.z then
+		navigateOnGroundToCoordinates(houseTo.x+1, current_pos.z )
+	end
+	if current_pos.x>basespots_chestBase.x then
+		navigateOnGroundToCoordinates(current_pos.x, -1)
+		navigateCoordinates(basespots_chestBase.x, houseGroundLevel, -1)
+		turn(directions["NORTH"])
+		for i=1, 12 do move_forward() end
+	else
+		navigateOnGroundToCoordinates(current_pos.x, -2)
+		navigateCoordinates(basespots_chestBase.x, houseGroundLevel, -2)
+		turn(directions["NORTH"])
+		for i=1, 13 do move_forward() end
+	end
+	turn(directions["NORTH"])
 end
 
 
 
-function goToCoordinatesOnGround(x,z)
-	return goToPointOnGround(vector.new(x,0,z))
+function navigateOnGroundToCoordinates(x, z)
+	return navigateOnGround(vector.new(x,0,z))
 end
 -- similar to go_towards, but:
 -- 1) Goes up instead of digging
 -- 2) At the target x,z, goes to the ground y level
-function goToPointOnGround(position)
+function navigateOnGround(position)
 	log("Moving on ground towards x: "..position.x.." z: "..position.z)
 	local offset = position - current_pos  --calculates the offset value
 
 
 	if (position.x-current_pos.x > 0 and position.z%2==1) or (position.x-current_pos.x < 0 and position.z%2==0) then
 		if position.x%2==0 then
-			goToPointOnGround(position + vector.new(0,0,-1))
-			goToPointOnGround(position)
+			navigateOnGround(position + vector.new(0,0,-1))
+			navigateOnGround(position)
 		else
-			goToPointOnGround(position + vector.new(0,0,1))
-			goToPointOnGround(position)
+			navigateOnGround(position + vector.new(0,0,1))
+			navigateOnGround(position)
 		end
 		return
 	end
@@ -231,13 +259,22 @@ function goToPointOnGround(position)
 	-- only increase z in even x pos, only decrease z in odd x pos --
 	-- thus turtles wont hit each other in the face and get stuck --
 	if (offset.z > 0 and current_pos.x % 2 == 1) or ((offset.z < 0 and current_pos.x % 2 == 0)) then
-		turn(directions["EAST"])
-		moveOverGround(0,false)
-		offset.x = offset.x + 1
+		if current_pos.z % 2 == 0 then
+			turn(directions["EAST"])
+			moveOverGround(0,false)
+			offset.x = offset.x - 1
+		else
+			turn(directions["WEST"])
+			moveOverGround(0,false)
+			offset.x = offset.x + 1
+		end
 	end
 
+
+
+
 	if offset.z < 0 then
-		turn(directionsdirections["SOUTH"])
+		turn(directions["SOUTH"])
 	elseif offset.z > 0 then
 		turn(directions["NORTH"])
 	end
@@ -286,23 +323,25 @@ function goToPointOnGround(position)
 end
 
 
-function goToCoordinates(x,y,z)
-	return go_towards(vector.new(x,y,z))
+function navigateCoordinates(x, y, z)
+	return navigate(vector.new(x,y,z))
 end
---naively implements navigation going towards a position with priority x y z ...
+
+
+--naively implements navigation going towards a position.
 -- please use navigate instead unless you know what you are doing
 -- first moves in y, then z, then x
 -- if something is in the way, it digs through!
-function go_towards(position)
+function navigate(position)
 	log("going towards x: "..position.x.." y: "..position.y.." z: "..position.z)
 	--if the target is on the east, but on odd z coordinate, go to a point one block northern or southern and then to the target
 	if (position.x-current_pos.x > 0 and position.z%2==1) or (position.x-current_pos.x < 0 and position.z%2==0) then
 		if position.x%2==0 then
-			go_towards(position + vector.new(0,0,-1))
-			go_towards(position)
+			navigate(position + vector.new(0,0,-1))
+			navigate(position)
 		else
-			go_towards(position + vector.new(0,0,1))
-			go_towards(position)
+			navigate(position + vector.new(0,0,1))
+			navigate(position)
 		end
 		return
 	end
@@ -333,11 +372,11 @@ function go_towards(position)
 		if current_pos.z % 2 == 0 then
 			turn(directions["EAST"])
 			move_forward()
-			offset.x = offset.x + 1
+			offset.x = offset.x - 1
 		else
 			turn(directions["WEST"])
 			move_forward()
-			offset.x = offset.x - 1
+			offset.x = offset.x + 1
 		end
 	end
 

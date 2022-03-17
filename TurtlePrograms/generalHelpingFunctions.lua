@@ -18,6 +18,7 @@ function has_value (tab, val)
     return false
 end
 
+
 function getStackTrace(depht, minus)
     s=debug.traceback()
     words={}
@@ -34,7 +35,7 @@ end
 
 function spiralNumberToCoordinate(num)
     local a=spiralNumberToCoordinateArray(num)
-    return vector.new(a[1],a[2])
+    return vector.new(a[1],0,a[2])
 end
 
 function spiralNumberToCoordinateArray(num)
@@ -146,8 +147,46 @@ end
 
 function moveAndCollect()
 while turtle.detect() do move_up() end
-    move_up()
+    turtle.suck()
     move_forward()
     repeat turtle.suckDown()
     until not move_down(false)
+end
+
+function multiplicate(table, multiplicator)
+    local ret={}
+    for i,j in pairs(table) do
+        ret[i]=j*multiplicator
+    end
+end
+
+function addValues(table1, table2)
+    local ret={}
+    if table1~=nil then
+        for i,j in pairs(table1) do
+            if ret[i]==nil then
+                ret[i]=j
+            else
+                ret[i]=ret[i]+j
+            end
+        end
+    end
+
+    if table2~=nil then
+        for i,j in pairs(table2) do
+            if ret[i]==nil then
+                ret[i]=j
+            else
+                ret[i]=ret[i]+j
+            end
+        end
+    end
+    return ret
+end
+
+function isEmpty(table)
+    for _,_ in pairs(table) do
+        return false
+    end
+    return true
 end

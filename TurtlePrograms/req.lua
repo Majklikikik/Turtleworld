@@ -9,5 +9,10 @@ require("generalHelpingFunctions")
 require("itemstacksizesAndMaxCounts")
 require("recipes")
 require("api")
+require("mining")
+require("standardValues")
+require("recipesInitiation")
+require("resourceCalculator")
+
 start() --chestStorageSystem
 

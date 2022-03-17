@@ -17,34 +17,35 @@ function InitiateChests()
     local chestCount
     local toKeep = {}
     if inventory_inv["minecraft:birch_log"]~=nil and inventory_inv["minecraft:birch_log"]>=6 then
-        chestCount=math.min(8,math.floor(inventory_inv["minecraft:birch_log"]))
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:birch_log"]/2))
         toKeep["minecraft:birch_log"]=chestCount*2
     elseif inventory_inv["minecraft:spruce_log"]~=nil and inventory_inv["minecraft:spruce_log"]>=6 then
-        chestCount=math.min(8,math.floor(inventory_inv["minecraft:spruce_log"]))
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:spruce_log"]/2))
         toKeep["minecraft:spruce_log"]=chestCount*2
     elseif inventory_inv["minecraft:oak_log"]~=nil and inventory_inv["minecraft:oak_log"]>=6 then
-        chestCount=math.min(8,math.floor(inventory_inv["minecraft:oak_log"]))
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:oak_log"]/2))
         toKeep["minecraft:oak_log"]=chestCount*2
     elseif inventory_inv["minecraft:jungle_log"]~=nil and inventory_inv["minecraft:jungle_log"]>=6 then
-        chestCount=math.min(8,math.floor(inventory_inv["minecraft:jungle_log"]))
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:jungle_log"]/2))
         toKeep["minecraft:jungle_log"]=chestCount*2
     elseif inventory_inv["minecraft:acacia_log"]~=nil and inventory_inv["minecraft:acacia_log"]>=6 then
-        chestCount=math.min(8,math.floor(inventory_inv["minecraft:acacia_log"]))
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:acacia_log"]/2))
         toKeep["minecraft:acacia_log"]=chestCount*2
     elseif inventory_inv["minecraft:dark_oak_log"]~=nil and inventory_inv["minecraft:dark_oak_log"]>=6 then
-        chestCount=math.min(8,math.floor(inventory_inv["minecraft:dark_oak_log"]))
+        chestCount=math.min(8,math.floor(inventory_inv["minecraft:dark_oak_log"]/2))
         toKeep["minecraft:dark_oak_log"]=chestCount*2
     else
         log("Error, somehow didn't get 6 of the same wood type")
     end
 
     log("Going to Chestbase: "..basespots_chestBase.x..":"..basespots_chestBase.y..":"..basespots_chestBase.z)
-    go_towards(basespots_chestBase)
+    navigate(basespots_chestBase)
     dropEverythinExcept(toKeep)
     log("Crafting "..chestCount.." chests!")
     craft("minecraft:startPlanks", 8*chestCount) -- Fails if more than 6 logs are in inventory
     craft("minecraft:startChest", chestCount)
 
+    turn(directions["NORTH"])
     for _ = 1, chestCount do
         PlaceChest()
     end
@@ -82,7 +83,7 @@ function PlaceFurnace()
     itemsWanted["minecraft:furnace"] = 1
     getmissing()
     build_furnace()
-    go_towards(home)
+    navigate(home)
 end
 
 -- Requirement: Chest in Inventory
@@ -106,7 +107,7 @@ end
 -- Reward: new Materials
 function Smelt(itemname, itemcount, fuelname, fuelcount)
     smelt(itemname, itemcount, fuelname, fuelcount)
-    go_towards(home)
+    navigate(home)
     turn(directions["EAST"])
     dropInventory()
 end

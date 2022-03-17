@@ -66,7 +66,7 @@ function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItem
     end
     if (alsoGetAlreadyExistingItems) then
         log("Warning: alsoGetAlreadyExistingItems is set true in craft: shouldn't be so!")
-        max=maximumItemCountAvailable(recipeID)
+        local max=maximumItemCountAvailable(recipeID)
         if max>=count then
             log("Items already available in Chests/Inventory!")
             getFromChests(recipeID,count)
@@ -77,19 +77,19 @@ function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItem
         return true
     end
     log("Getting items!")
-    log("Crafting "..count.." items, maximal count of items to be crafted in one Batch is "..maxCount)
+    log("Crafting "..count.." items, maximal count of items to be crafted in one Batch is ".. recipe_maxCount)
     -- if too many items need to be crafted, crafting needs to be repeated multiple times
-    for i=1,math.floor(count/maxCount) do
+    for i=1,math.floor(count/ recipe_maxCount) do
         log("Getting a full batch!")
-        getItemsFor(recipeID,maxCount)
+        getItemsFor(recipeID, recipe_maxCount)
         arrangeInventoryToRecipe()
-        turtle.craft(maxCount)
+        turtle.craft(recipe_maxCount)
     end
-    if count%maxCount>0 then
-        log("Getting items for "..recipeID.." x "..(count%maxCount))
-        getItemsFor(recipeID,count%maxCount)
+    if count% recipe_maxCount >0 then
+        log("Getting items for "..recipeID.." x "..(count% recipe_maxCount))
+        getItemsFor(recipeID,count% recipe_maxCount)
         arrangeInventoryToRecipe()
-        turtle.craft(count%maxCount)
+        turtle.craft(count% recipe_maxCount)
     end
     return true
 end

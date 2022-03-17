@@ -2,6 +2,7 @@ require("itemstacksizesAndMaxCounts")
 inventory_inv ={} --inv[itemname], contains count
 inventory_items ={} --array of itemdetails
 inventory_slot ={} --slot[itemname] tells in which slot <itemname> is
+-- if multiple slots contain[itemname], returns the last one
 
 inventory_mined = {}
 
@@ -21,8 +22,8 @@ function countInventory()
 	--inv={}
 	resetInv()
 	for i=1,16 do
-		det=turtle.getItemDetail(i)
-		inventory_items[i]=det
+		local det=turtle.getItemDetail(i)
+		inventory_items[i]=turtle.getItemDetail(i)
 		if det~=nil then
 			--log(det)
 			if inventory_inv[det.name]==nil
@@ -30,13 +31,8 @@ function countInventory()
 				inventory_inv[det.name]=det.count
 				inventory_slot[det.name]=i
 			else
-				before= inventory_inv[det.name]
-				toPut=math.min(getStackSize(det.name)-before, det.count)
 				inventory_inv[det.name]= inventory_inv[det.name]+det.count
-				turtle.select(i)
-				turtle.transferTo(inventory_slot[det.name])
-				inventory_items[inventory_slot[det.name]].count= inventory_items[inventory_slot[det.name]].count+toPut
-				inventory_items[i]=turtle.getItemDetail()
+				inventory_slot[det.name]=i
 			end
 		end
 	end
@@ -54,10 +50,40 @@ function printInventoryNames()
 	end
 end
 
-function sortInventory(reverse)
-	if reverse==nil then reverse = false end
+
+function mergeStacks()
+	for i=16,1,-1 do
+		if inventory_items[i]~=nil then
+			local itemDet= inventory_items[i]
+			for j=i,16 do
+				if inventory_items[j]~=nil and inventory_items[j].name==itemDet.name then
+					local toPut=math.min(getStackSize(itemDet.name)-inventory_items[j].count, itemDet.count)
+					if toPut>0 then
+						turtle.select(i)
+						turtle.transferTo(j)
+						inventory_items[j].count=inventory_items[j].count+toPut
+						if toPut==itemDet.count then
+							inventory_items[i]=nil
+							break
+						else
+							inventory_items[i].count=inventory_items[i].count-toPut
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+
+--1) Move all Items to the last slots, keep the first slots empty
+--2) Merge Stacks if possible
+function countAndSortInventory()
+	countInventory(false)
+	mergeStacks()
+
 	--items in the last slots, first slots empty
-	countInventory()
+
 	local j=16
 	while inventory_items[j]~=nil do
 		j=j-1
@@ -66,28 +92,21 @@ function sortInventory(reverse)
 		if i>=j then
 			return
 		end
-
-		l=j
-		k=i
-		if reverse then k=17-i end
-		if reverse then l=17-j end
-
-		if inventory_items[k]~=nil then
-			turtle.select(k)
-			turtle.transferTo(l)
-			inventory_items[l]= inventory_items[k]
-			inventory_items[k]=nil
-			while inventory_items[l]~=nil do
-				l=l-1
+		if inventory_items[i]~=nil then
+			turtle.select(i)
+			turtle.transferTo(j)
+			inventory_items[j]= inventory_items[i]
+			inventory_items[i]=nil
+			while inventory_items[j]~=nil do
+				j=j-1
 			end
 		end
 	end
-	countInventory()
 end
 
 function dropEverythinExcept(itemsToKeep)
 	for i=1,16 do
-		id=turtle.getItemDetail(i)
+		local id=turtle.getItemDetail(i)
 		if id~=nil then
 			c=id.count
 			if itemsToKeep[id.name] == nil then
@@ -103,15 +122,71 @@ function dropEverythinExcept(itemsToKeep)
 	end
 end
 
+
+--similar to dropAbundantItems, but 
+-- 1) Doesn't check Chests
+-- 2) Takes only up to stackCount stacks of each item
+function dropAbundantItemsNoChest(maxStacks)
+	local doLog=true
+	if maxStacks==nil then maxStacks = 2 end
+	countAndSortInventory()
+	local stackCounts={}
+	local itemCounts={}
+	local itemDet
+	for i=16,1,-1 do
+		itemDet=inventory_items[i]
+		if itemDet~=nil then
+			if doLog then log(itemDet.name) end
+			if maxCountToKeep(itemDet.name)==0 then
+				if doLog then log(1) end
+				turtle.select(i) turtle.drop()
+			else
+				if stackCounts[itemDet.name]==nil then
+					if doLog then log(2) end
+					stackCounts[itemDet.name]=0
+					itemCounts[itemDet.name]=0
+				end
+				if stackCounts[itemDet.name]>=maxStacks then
+					if doLog then log(3) end
+					turtle.select(i) turtle.drop()
+				else
+					stackCounts[itemDet.name]=stackCounts[itemDet.name]+1
+					if itemCounts[itemDet.name]+itemDet.count > maxCountToKeep(itemDet.name) then
+						if doLog then log(4) end
+						local toTrash = itemCounts[itemDet.name] + itemDet.count - maxCountToKeep(itemDet.name)
+						turtle.select(i)
+						turtle.drop(toTrash)
+						itemCounts[itemDet.name]=maxCountToKeep(itemDet.name)
+					else
+						itemCounts[itemDet.name] = itemCounts[itemDet.name] + itemDet.count
+					end
+				end
+			end
+		end
+	end
+end
+
+
+function hasAll(itemsToCheck)
+	countInventory()
+	for i,j in pairs(itemsToCheck) do
+		print(i..": "..j.." have "..inventory_inv[i])
+		if inventory_inv[i]==nil or inventory_inv[i]<j then return false end
+	end
+	return true
+end
+
+
+
 function dropAbundantItems(withSorting)
 	if withSorting==nil then withSorting=true end
-	removed=false
+	local removed=false
 	sumInventoryAndAllChests()
 	for i=1,16 do
-		id=turtle.getItemDetail(i)
+		local id=turtle.getItemDetail(i)
 		if id~=nil then
-			c=id.count
-			tot=totalItemCounts[id.name]
+			local c=id.count
+			local tot=totalItemCounts[id.name]
 			if tot==nil then
 				log("Something strange happened: DropAbundantItems says tot is nil")
 			else
@@ -127,7 +202,7 @@ function dropAbundantItems(withSorting)
 
 		end
 	end
-	if withSorting and removed then sortInventory(true) end
+	if withSorting and removed then countAndSortInventory(true) end
 end
 
 
@@ -162,8 +237,8 @@ function saveExtraMined(item, quantity)
 	countInventory()
 	dropAbundantItems()
 	for i = 1,16 do
-		name = turtle.getItemDetail(i).name
-		count = turtle.getItemDetail(i).count
+		local name = turtle.getItemDetail(i).name
+		local count = turtle.getItemDetail(i).count
 		if name == item and count >= quantity and not done then
 			addToStored(name, quantity - count )
 			done = true

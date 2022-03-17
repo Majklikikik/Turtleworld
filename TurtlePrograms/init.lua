@@ -4,7 +4,7 @@
 
 
 function init_turtle(arg)
-
+	initiateRecipes()
 	if arg ~= nil and #arg == 4 then
 		current_pos = vector.new(arg[1], arg[2], arg[3])
 		current_dir = arg[4]
