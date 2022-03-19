@@ -2,8 +2,8 @@ recipe_rec ={ 6, 6, 6}
 recipe_count =1
 recipe_outputMult = 1
 recipe_inputMult = 1
-woods={"minecraft:oak_log","minecraft:spruce_log","minecraft:birch_log","minecraft:jungle_log","minecraft:acacia_log","minecraft:dark_oak_log","minecraft:crimson_log","minecraft:warped_log"}
-planks={"minecraft:oak_planks","minecraft:spruce_planks","minecraft:birch_planks","minecraft:jungle_planks","minecraft:acacia_planks","minecraft:dark_oak_planks","minecraft:crimson_planks","minecraft:warped_planks"}
+woods={"minecraft:oak_log","minecraft:spruce_log","minecraft:birch_log","minecraft:jungle_log","minecraft:acacia_log","minecraft:dark_oak_log","minecraft:crimson_log","minecraft:warped_log", "myrtrees:rubberwood_log"}
+planks={"minecraft:oak_planks","minecraft:spruce_planks","minecraft:birch_planks","minecraft:jungle_planks","minecraft:acacia_planks","minecraft:dark_oak_planks","minecraft:crimson_planks","minecraft:warped_planks","myrtrees:rubberwood_planks"}
 woodsName="mixed:woods"
 planksName="mixed:planks"
 recipe_name =""
@@ -55,6 +55,14 @@ function setRecipe(id,c)
 	recipe_maxCount = recipe_recipes[id]["maxCount"]
 	recipe_outputMult = recipe_recipes[id]["outputMult"]
 	recipe_inputMult = recipe_recipes[id]["inputMult"]
+
+	--set the values depending only on the machine
+	if recipe_machine == 0 then
+		recipe_inputMult=1
+	elseif recipe_machine == 1 then
+		if recipe_inputMult == nil then recipe_inputMult = 8 end
+		if recipe_outputMult == nil then recipe_outputMult = 8 end
+	end
 	recalculateItemsNeeded()
 	return true
 end

@@ -3,7 +3,7 @@ require("req")
 --    log(textutils.serialize(spiralNumberToCoordinate(i)))
 --end
 local arg = { ... }
-init_turtle({0,63,0,0})
+init_turtle({11,63,11,0})
 
 --moveOverGround()
 --for i=1,10 do moveOverGround() end
@@ -27,4 +27,12 @@ init_turtle({0,63,0,0})
 
 --log(setRecipe("computercraft:turtle_mining_crafty"))
 
-log(resourceCosts("computercraft:turtle_mining_crafty", 1, {}))
+--log(resourceCosts("computercraft:turtle_mining_crafty", 1, {}))
+
+--log(generateCraftingPlan("computercraft:turtle_mining_crafty",1,{}))
+
+init_turtle({11,67,11,directions["NORTH"]})
+inventur()
+local count = 2
+craftRecursivelyUsingMachinesSingleTurtle("minecraft:chest",count, getTotalItemCounts())
+getItemsOneType("minecraft:chest",count)

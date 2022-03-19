@@ -35,7 +35,9 @@ function maxCountToKeep(name)
 	if name=="minecraft:redstone" then return 1024 end
 	if name=="minecraft:gold_ore" then return 1024 end
 	if name=="minecraft:lapis_lazuli" then return 1024 end
-
+	if name=="minecraft:emerald" then return 1024 end
+	if name=="emendatusenigmatica:iron_chunk" then return 1024 end
+	if name=="emendatusenigmatica:gold_chunk" then return 1024 end
 	if name=="minecraft:wheat_seeds" then return 3 end
 
 	return 0;

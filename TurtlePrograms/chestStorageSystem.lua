@@ -5,7 +5,6 @@ require("itemstacksizesandMaxCounts")
 chests={} --contains all information about the count of chests and their content
 totalItemCounts={} -- total item counts over all chests
 itemsWanted={} -- itemsWanted[itemname]=count
-reserved ={} --contains items reserved for crafting and thus not available
 function writeChestFile()
 	--saves the chests table to file
 	log(" Writing Chest File ")
@@ -36,11 +35,6 @@ function addChestToData()
 	chests[chests["count"]]["stackCount"]=0 --count of stacks of items in the chest
 	chests[chests["count"]]["items"]={}
 end
-
-function addChest()
-	addChestToData()
-end
-
 
 --a few methods for moving arount and saving the position in order to be able to go back to the start
 function chestMovement_moveForward()
@@ -153,7 +147,7 @@ function inventur()
 			return
 		end
 	end
-	
+
 end
 
 function storeRest()
@@ -161,14 +155,15 @@ function storeRest()
 	log("Dropping rest in Chests")
 	--stores everything, which is not needed for the recipe, in chests
 	itemsDesignatedForChest={} --itemsDesignatedForChest[3]=List of items, which should be put in Chest 3
-	itemsToStoreInAnyChest={}
-	local tmp={} -- List of items needed for crafting, local copy
-	for i,_ in pairs(itemsWanted) do
-		tmp[i]=itemsWanted[i]
+	itemsToStoreInAnyChest={} -- list of Items which can be put anywhere. itemsToStore[i]= j means j items from slot i can be put anywhere
+
+
+	local tmp=copyTable(itemsWanted)-- List of items which should be kept
+	--check, in which chests to put which items
+	local minChestIndexForPossibleTarget = {}
+	for i,_ in pairs(inventory_inv) do
+		minChestIndexForPossibleTarget[i]=1
 	end
-
-
---check, in which chests to put which items
 	for i=1,16 do
 		local it= inventory_items[i]
 		if it~=nil then
@@ -180,24 +175,32 @@ function storeRest()
 					if tmp[it["name"]]==0 then
 						tmp[it["name"]]=nil
 					end
-
 				end
 			end
-			if putCount~=0 then
+			log("Looking for PLace for "..putCount.." items")
+			while putCount~=0 do
 				-- look for a chest to put "it" in
-				local target=findChestFor(it.name,putCount)
+				local target=findChestFor(it.name,putCount, minChestIndexForPossibleTarget[it.name])
+				log("Target is: ")
+				log(target)
+				log("PutCount: "..putCount)
 				if target==nil then
 					itemsToStoreInAnyChest[i]=putCount
+					putCount = 0
 				else
-					if itemsDesignatedForChest[target.chestIndex]==nil then itemsDesignatedForChest[target.chestIndex]={} end
-					itemsDesignatedForChest[target.chestIndex][i]=target["count"]
+					if itemsDesignatedForChest[target.chestIndex]==nil then
+						itemsDesignatedForChest[target.chestIndex]={}
+					end
+					itemsDesignatedForChest[target.chestIndex][i]=target.count
+					putCount = putCount - target.count
+					minChestIndexForPossibleTarget[it.name] = target.chestIndex + 1
 				end
 			end
 		end
 	end
 
 
---go from one chest to the next and store the items there
+	--go from one chest to the next and store the items there
 	for i=1,chests.count do
 		if chests[i]["stackCount"]<8 and tableSize(itemsToStoreInAnyChest)~=0 or itemsDesignatedForChest[i]~=nil then
 			gotoChest(i)
@@ -228,7 +231,13 @@ function storeRest()
 	writeChestFile()
 end
 
-function getFromChests(itemname, count)
+function getItems(itemList)
+	dropInventory()
+	itemsWanted = itemList
+	getmissing()
+end
+
+function getItemsOneType(itemname, count)
 	if count==0 then return end
 	log("Getting "..count.." of "..itemname.." from chests")
 	countAndSortInventory()
@@ -259,10 +268,10 @@ function getmissing()
 	end
 
 	--check, in which chests the searched items are
-	toGet={}-- toGet[i][j]= count of items to take from chest i, slot j
+	local toGet={}-- toGet[i][j]= count of items to take from chest i, slot j
 	for i = 1,chests["count"] do
 		toGet[i]={}
-		for j=1,8 do
+		for j=8,1,-1 do
 			if chests[i].items[j]~=nil then
 				local c=tmp[chests[i].items[j].name]
 				if c~=nil then
@@ -279,7 +288,7 @@ function getmissing()
 		end
 	end
 
---get the items
+	--get the items
 
 	for i =  1,chests.count  do
 		--if a searched item is in chest i go there
@@ -294,8 +303,8 @@ function getmissing()
 			local ind=1
 			for j=1,8 do
 				--if the j-th item is nil, then we are already done
-				if chests[i].items[j]==nil then 
-					break 
+				if chests[i].items[j]==nil then
+					break
 				end
 				turtle.select(j)
 				--if toGet[i][j] is nil, then put everything back, else keep some items
@@ -327,12 +336,11 @@ function getmissing()
 		end
 	end
 	gotoStart()
-	print_table(chests)
+	--print_table(chests)
 	writeChestFile()
 end
 
 function addItemToChest(chest,name,count)
-	-- 
 	for i=1,8 do
 		local t=chests[chest].items[i]
 		if t==nil then
@@ -341,8 +349,13 @@ function addItemToChest(chest,name,count)
 			return true
 		else
 			if chests[chest].items[i].name==name and chests[chest].items[i].count<getStackSize(name) then
-				chests[chest].items[i].count=chests[chest].items[i].count+count
-				return true
+				if chests[chest].items[i].count + count > getStackSize(name) then
+					count = count + chests[chest].items[i].count - getStackSize(name)
+					chests[chest].items[i].count = getStackSize(name)
+				else
+					chests[chest].items[i].count=chests[chest].items[i].count+count
+					return true
+				end
 			end
 		end
 	end
@@ -350,12 +363,13 @@ function addItemToChest(chest,name,count)
 	return false
 end
 
-function findChestFor(item,count)
-	for i=1,chests["count"] do
+function findChestFor(item,Count, minChestIndexForPossibleTarget)
+	for i=minChestIndexForPossibleTarget,chests["count"] do
 		for j=1,chests[i]["stackCount"] do
 			if chests[i]["items"][j]~=nil and chests[i]["items"][j]["name"]==item then
 				if chests[i]["items"][j]["count"]<getStackSize(item) then
-					return {chestIndex=i, count=math.min(count, getStackSize(item)-chests[i]["items"][j]["count"])}
+					log("Stacksize: "..getStackSize(item)..", itemCount: "..chests[i]["items"][j]["count"]..", Count: "..Count)
+					return {chestIndex=i, count=math.min(Count, getStackSize(item)-chests[i]["items"][j]["count"])}
 				end
 			end
 		end
@@ -364,8 +378,8 @@ function findChestFor(item,count)
 end
 
 function getItemsFor( itemname, count )
+	local totalItemCounts = getTotalItemCounts()
 	log("Getting items from chests: for "..itemname.." x "..count)
-	sumInventoryAndAllChests()
 	count=count or 1
 	setRecipe(itemname, count)
 	countInventory()
@@ -400,13 +414,10 @@ function getItemsFor( itemname, count )
 	getmissing()
 end
 
-function sumInventoryAndAllChests()
+function getTotalItemCounts()
+	local totalItemCounts = {}
 	log("Summing up inventory and Chests")
 	countInventory()
-	--reset totalitemcounts
-	for t,_ in pairs(totalItemCounts) do
-		totalItemCounts[t]=nil
-	end
 	--log("Counting in inventory")
 	--count from inventory
 	for i,_ in pairs(inventory_inv) do
@@ -426,55 +437,39 @@ function sumInventoryAndAllChests()
 			end
 		end
 	end
+
+	totalItemCounts[woodsName]=0
+	totalItemCounts[planksName]=0
+	for _,j in pairs(woods) do
+		if totalItemCounts[j]~= nil then
+			totalItemCounts[woodsName] = totalItemCounts[woodsName] + totalItemCounts[j]
+		end
+	end
+	for _,j in pairs(planks) do
+		if totalItemCounts[j]~= nil then
+			totalItemCounts[planksName] = totalItemCounts[planksName] + totalItemCounts[j]
+		end
+	end
+	return totalItemCounts
 end
 
 function maximumItemCountAvailable(itemname, mindReservations)
+	local totalItemCounts = getTotalItemCounts()
 	mindReservations = mindReservations or false
 	if totalItemCounts[itemname]==nil then return 0 end
 	if not mindReservations or reserved[itemname]==nil then return totalItemCounts[itemname] end
 	return totalItemCounts[itemname]-reserved[itemname]
 end
 
-function itemsAvailable(itemname, count, mindReservations)
-	mindReservations = mindReservations or false
-	--for i,_ in pairs(totalItemCounts) do
-	--	log(i.."  "..totalItemCounts[i])
-	--end
-	if totalItemCounts[itemname]==nil then
+function itemsAreAvailable(itemname, count)
+	local totalItemCounts = getTotalItemCounts()
+	if totalItemCounts[itemname]==nil
+	then
 		log(count.." of "..itemname.." wanted, have none")
+		return false
 	else
 		log(count.." of "..itemname.." wanted, have "..totalItemCounts[itemname])
-	end
-	if mindReservations then
-		if reserved[itemname]==nil then
-		--	log("None are reserved")
-		else
-			log(reserved[itemname].." are already reserved")
-		end
-	end
-	if totalItemCounts[itemname]==nil
-		then return false
-		else
-		if mindReservations and not reserved[itemname]==nil then
-			return  totalItemCounts[itemname]-reserved[itemname]>=count
-		else
-			return  totalItemCounts[itemname]>=count
-		end
-
-	end
-end
-
-function reserve(itemname, count)
-	if reserved[itemname]==nil then
-		reserved[itemname]=count
-	else
-		reserved[itemname]=reserved[itemname]+count
-	end
-end
-
-function resetReservations()
-	for t in pairs(reserved) do
-		reserved[t]=nil
+		return  totalItemCounts[itemname]>=count
 	end
 end
 
@@ -483,4 +478,10 @@ function dropInventory()
 		itemsWanted[k]=nil
 	end
 	storeRest()
+end
+
+function countTotalWood()
+	local totCount = getTotalItemCounts()
+	if totCount[woodsName] == nil then return 0	end
+	return totCount[woodsName]
 end

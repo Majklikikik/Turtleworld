@@ -127,7 +127,7 @@ end
 -- 1) Doesn't check Chests
 -- 2) Takes only up to stackCount stacks of each item
 function dropAbundantItemsNoChest(maxStacks)
-	local doLog=true
+	local doLog=false
 	if maxStacks==nil then maxStacks = 2 end
 	countAndSortInventory()
 	local stackCounts={}
@@ -170,7 +170,6 @@ end
 function hasAll(itemsToCheck)
 	countInventory()
 	for i,j in pairs(itemsToCheck) do
-		print(i..": "..j.." have "..inventory_inv[i])
 		if inventory_inv[i]==nil or inventory_inv[i]<j then return false end
 	end
 	return true
@@ -179,9 +178,9 @@ end
 
 
 function dropAbundantItems(withSorting)
+	local totalItemCounts = getTotalItemCounts()
 	if withSorting==nil then withSorting=true end
 	local removed=false
-	sumInventoryAndAllChests()
 	for i=1,16 do
 		local id=turtle.getItemDetail(i)
 		if id~=nil then
@@ -191,7 +190,7 @@ function dropAbundantItems(withSorting)
 				log("Something strange happened: DropAbundantItems says tot is nil")
 			else
 				dropCount=math.min(c,tot-maxCountToKeep(id.name))
-				log(i.."   "..dropCount)
+				--log(i.."   "..dropCount)
 				if dropCount>0 then
 					removed=true
 					turtle.select(i)

@@ -1,5 +1,38 @@
 mining_minimalMiningHeight = 1
-mining_maximalMiningHeight = 60
+mining_maximalMiningHeight = 50
+
+--mining progress: is the number of the last Tunnel already mined within the chunk
+-- is 0, if the chunk wasn't touched yet, and -1, if the chunk got completely mined
+
+function readMiningProgressFile()
+    local h = fs.open("miningProgress.michi", "r")
+    if h == nil then return {} end
+    local ret = textutils.unserialize(h.readAll())
+    h.close()
+    return ret
+end
+
+function writeMiningProgressFile(table)
+    local save = {}
+    local h = fs.open("miningProgress.michi", "w")
+    h.write(textutils.serialize(table))
+    h.close()
+end
+
+function saveMiningProgress(chunkNum, tunnelNum)
+    local tmp = readMiningProgressFile()
+    tmp[chunkNum]=tunnelNum
+    writeMiningProgressFile(tmp)
+end
+
+function loadMiningProgress(chunkNum)
+    local tmp = readMiningProgressFile()
+    if tmp[chunkNum]== nil then return 0 end
+    return tmp[chunkNum]
+end
+
+
+
 --returns the z and y coordinates of the tunnelNum-th tunnel in Chunk number chunkNum
 -- this Tunnel should get mined either from west to east or vice versa, depending on the parity of it's z coordinate
 function getMiningTunnelStartPosition(chunkNum, tunnelNum)
@@ -24,26 +57,35 @@ function getMiningTunnelStartPosition(chunkNum, tunnelNum)
     return nil
 end
 
+
+function mineAndReturnToHouse(chunkNum, fromTunnel, maxTunnelCount, itemsToMine)
+    local ret = mine(chunkNum, fromTunnel, maxTunnelCount, itemsToMine)
+    goFromOutsideUndergroundToHouseEntryPoint()
+    return ret
+end
+
 --turtle needs to be in a valid house leaving point
 -- returns:
--- 1) true, if all items wanted got mined
+-- 1) the number of the last tunnel, if all items wanted got mined
 -- 2) false, if maxTunnelCount tunnels got mined
 -- 3) nil, if the Chunk got drained (no more Tunnels are possible)
 function mine(chunkNum, fromTunnel, maxTunnelCount, itemsToMine)
-    goFromHouseLeavingPointToChunk(chunkNum)
-    for i=fromTunnel,fromTunnel + maxTunnelCount do
+    log("Mining Chunk "..chunkNum.." from Tunnel #"..fromTunnel.." , up to "..maxTunnelCount.." tunnels")
+    goFromHouseLeavingPointToChunk(chunkNum, true)
+    for i=fromTunnel,fromTunnel + maxTunnelCount -1 do
         --means the Chunk got completely mined
         if getMiningTunnelStartPosition(chunkNum, i)==nil then return nil end
-        mineTunnel(chunkNum, tunnelNum)
+        mineTunnel(chunkNum, i)
         dropAbundantItemsNoChest(2)
         if itemsToMine~=nil and hasAll(itemsToMine) then
-            return true
+            return i
         end
     end
     return false
 end
 
 function mineTunnel(chunkNum, tunnelNum)
+    log("Mining Tunnel #"..tunnelNum.." in Chunk "..chunkNum)
     local tunnelPos = getMiningTunnelStartPosition(chunkNum, tunnelNum)
     navigate(tunnelPos)
     checkForResources()
@@ -70,7 +112,7 @@ function checkForResources()
     if isWantedItem(table.pack(turtle.inspect())[2].name) then
         turtle.dig()
     end
-    turn(directions["NORTH"])
+    turn(directions["SOUTH"])
     if isWantedItem(table.pack(turtle.inspect())[2].name) then
         turtle.dig()
     end

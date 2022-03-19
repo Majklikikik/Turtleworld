@@ -1,22 +1,28 @@
 require("movement")
 require("chestStorageSystem")
 -- requirement is, that there is a furnace in the storage system
-function build_furnace()
-    turn(directions["EAST"])
-    move_forward()
-    move_forward()
-
-    local _ , data = turtle.inspectUp()
-
-    if data.name == "minecraft:furnace" then
-        navigate(home)
-        return
+function buildBaseFurnaces()
+    log("Building Base Furnaces")
+    craft("minecraft:furnace",12)
+    getItemsOneType("minecraft:furnace",12)
+    for i=1,12 do
+        navigateCoordinates(4, houseGroundLevel, 14 - furnaceIndex)
+        select("minecraft:furnace")
+        turtle.placeUp()
     end
-
-    turtle.digUp()
-    select("minecraft:furnace")
-    turtle.placeUp()
 end
+
+
+function buildBaseChests(count)
+    log("Building "..count.." chests!")
+    craftRecursivelyUsingMachinesSingleTurtle("minecraft:chest",count, getTotalItemCounts())
+    dropInventory()
+    getItemsOneType("minecraft:chest",count)
+    for i=1,count do
+        build_chest()
+    end
+end
+
 -- requirement is, that there is a chest in the storage system
 function build_chest()
     dir =  ( (chests["count"] % 4) +1) % 4

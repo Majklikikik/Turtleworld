@@ -2,32 +2,16 @@ require("movement")
 require("chestStorageSystem")
 require("inventory")
 
-function smelt(itemname, itemcount, fuelname, fuelcount)
-    storeRest()
-    smeltingTime=10
-
-    for i,_ in pairs(itemsWanted) do
-        itemsWanted[i]=nil
-    end
-
-    itemsWanted[itemname]=itemcount;
-    if (fuelcount>0) then
-        itemsWanted[fuelname]=fuelcount;
-    end
-
-    getmissing()
-
-
-    turn(directions["EAST"])
-    for _ = 1,3 do
-        move_forward()
-    end
-    move_up()
+function smeltSingleTurtle(itemname, itemcount)
+    local wanted={}
+    wanted[itemname]=itemcount
+    wanted["minecraft:coal"]=itemcount/8
+    getItems(wanted)
+    navigateCoordinates(5, houseGroundLevel, 13)
+    navigateCoordinates(5, houseGroundLevel + 1, 13)
     turn(directions["WEST"])
-
-    countInventory()
     if (fuelcount>0) then
-        turtle.select(inventory_slot[fuelname])
+        turtle.select(inventory_slot["minecraft:coal"])
         turtle.drop()
     end
     move_up()
@@ -35,16 +19,12 @@ function smelt(itemname, itemcount, fuelname, fuelcount)
     countInventory()
     turtle.select(inventory_slot[itemname])
     turtle.dropDown()
-    turn(directions["EAST"])
-    move_forward()
-    turn(directions["WEST"])
+    move_back()
     move_down()
     move_down()
     move_forward()
     sleep(itemcount*smeltingTime)
     turtle.suckUp()
-
-
-
-
+    move_back()
+    goFromOutsideToChestPoint()
 end

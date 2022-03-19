@@ -60,93 +60,93 @@ end
 
 -- https://stackoverflow.com/questions/9168058/how-to-dump-a-table-to-console
 function print_table(node)
-local cache, stack, output = {},{},{}
-local depth = 1
-local output_str = "{\n"
+    local cache, stack, output = {},{},{}
+    local depth = 1
+    local output_str = "{\n"
 
-while true do
-    local size = 0
-    for k,v in pairs(node) do
-        size = size + 1
-    end
-
-    local cur_index = 1
-    for k,v in pairs(node) do
-        if (cache[node] == nil) or (cur_index >= cache[node]) then
-
-            if (string.find(output_str,"}",output_str:len())) then
-                output_str = output_str .. ",\n"
-            elseif not (string.find(output_str,"\n",output_str:len())) then
-                output_str = output_str .. "\n"
-            end
-
-            -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
-            table.insert(output,output_str)
-            output_str = ""
-
-            local key
-            if (type(k) == "number" or type(k) == "boolean") then
-                key = "["..tostring(k).."]"
-            else
-                key = "['"..tostring(k).."']"
-            end
-
-            if (type(v) == "number" or type(v) == "boolean") then
-                output_str = output_str .. string.rep('\t',depth) .. key .. " = "..tostring(v)
-            elseif (type(v) == "table") then
-                output_str = output_str .. string.rep('\t',depth) .. key .. " = {\n"
-                table.insert(stack,node)
-                table.insert(stack,v)
-                cache[node] = cur_index+1
-                break
-            else
-                output_str = output_str .. string.rep('\t',depth) .. key .. " = '"..tostring(v).."'"
-            end
-
-            if (cur_index == size) then
-                output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
-            else
-                output_str = output_str .. ","
-            end
-        else
-            -- close the table
-            if (cur_index == size) then
-                output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
-            end
+    while true do
+        local size = 0
+        for k,v in pairs(node) do
+            size = size + 1
         end
 
-        cur_index = cur_index + 1
+        local cur_index = 1
+        for k,v in pairs(node) do
+            if (cache[node] == nil) or (cur_index >= cache[node]) then
+
+                if (string.find(output_str,"}",output_str:len())) then
+                    output_str = output_str .. ",\n"
+                elseif not (string.find(output_str,"\n",output_str:len())) then
+                    output_str = output_str .. "\n"
+                end
+
+                -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+                table.insert(output,output_str)
+                output_str = ""
+
+                local key
+                if (type(k) == "number" or type(k) == "boolean") then
+                    key = "["..tostring(k).."]"
+                else
+                    key = "['"..tostring(k).."']"
+                end
+
+                if (type(v) == "number" or type(v) == "boolean") then
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = "..tostring(v)
+                elseif (type(v) == "table") then
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = {\n"
+                    table.insert(stack,node)
+                    table.insert(stack,v)
+                    cache[node] = cur_index+1
+                    break
+                else
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = '"..tostring(v).."'"
+                end
+
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+                else
+                    output_str = output_str .. ","
+                end
+            else
+                -- close the table
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+                end
+            end
+
+            cur_index = cur_index + 1
+        end
+
+        if (size == 0) then
+            output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+        end
+
+        if (#stack > 0) then
+            node = stack[#stack]
+            stack[#stack] = nil
+            depth = cache[node] == nil and depth + 1 or depth - 1
+        else
+            break
+        end
     end
 
-    if (size == 0) then
-        output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
-    end
+    -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+    table.insert(output,output_str)
+    output_str = table.concat(output)
 
-    if (#stack > 0) then
-        node = stack[#stack]
-        stack[#stack] = nil
-        depth = cache[node] == nil and depth + 1 or depth - 1
-    else
-        break
-    end
-end
-
--- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
-table.insert(output,output_str)
-output_str = table.concat(output)
-
-log(output_str)
+    log(output_str)
 end
 
 function logNameOfBlockInFront()
     a,b=turtle.inspect()
     if a then log(b.name)
-        else log(b)
+    else log(b)
     end
 end
 
 function moveAndCollect()
-while turtle.detect() do move_up() end
+    while turtle.detect() do move_up() end
     turtle.suck()
     move_forward()
     repeat turtle.suckDown()
@@ -164,11 +164,7 @@ function addValues(table1, table2)
     local ret={}
     if table1~=nil then
         for i,j in pairs(table1) do
-            if ret[i]==nil then
-                ret[i]=j
-            else
-                ret[i]=ret[i]+j
-            end
+            ret[i]=j
         end
     end
 
@@ -184,9 +180,63 @@ function addValues(table1, table2)
     return ret
 end
 
+function subtractValuesPositive(table1, table2)
+    local ret={}
+    if table1~=nil then
+        for i,j in pairs(table1) do
+            ret[i]=j
+        end
+    end
+
+    if table2~=nil then
+        for i,j in pairs(table2) do
+            if ret[i]~=nil then
+                ret[i]=math.max(ret[i]-j)
+                if ret[i]==0 then ret[i] = nil end
+            end
+        end
+    end
+    return ret
+end
+
 function isEmpty(table)
     for _,_ in pairs(table) do
         return false
     end
     return true
+end
+
+function copyTable(table)
+    local ret = {}
+    for i,j in pairs(table) do
+        if type(j)=="table" then
+            ret[i]=copyTable(j)
+        else
+            ret[i]=j
+        end
+    end
+    return ret
+end
+
+-- Returns true, if the first itemlist contains all items in the second itemlist
+function containsEverythingFrom(table1, table2)
+    for i,j in pairs(table2) do
+        if table1[i] == nil then return false end
+        if table1[i]<j then return false end
+    end
+    return true
+end
+
+-- Returns true, if the first itemlist contains all items in the second itemlist
+function containsItems(table1, itemname, itemcount)
+        if table1[itemname] == nil then return false end
+        if table1[itemname]<itemcount then return false end
+    return true
+end
+
+function concatenateTables(t1,t2)
+    for i=1,#t2 do
+        t1[#t1+1] = t2[i]
+    end
+    return t1
 end

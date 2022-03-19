@@ -1,59 +1,90 @@
 require("recipes")
 
---[[
-function itemsToCraftAvailable(itemname, count, recursion, useExistingItems, withCurrentReservations)
-    if withCurrentReservations== nil then withCurrentReservations=false end
-    if recursion==nil then recursion=true end
-    if not withCurrentReservations then
-        resetReservations()
-        sumInventoryAndAllChests()
+--Lets the solo turtle craft the items, making the (recursive) plan and executing it
+function craftRecursivelyUsingMachinesSingleTurtle(itemname, itemcount, itemsAvailable)
+    return craftRecursivelyUsingMachinesHelper(itemname, itemcount, copyTable(itemsAvailable))
+end
+
+
+function craftRecursivelyUsingMachinesHelper(itemname, itemcount, itemsAvailable)
+    local planAndRest = generateCraftingPlan(itemname, itemcount, itemsAvailable)
+    local rest=planAndRest[2]
+    local plan = planAndRest[1]
+    for i=#plan, 1, -1 do
+        executePlanStepSingleTurtle(plan[i])
+    end
+end
+
+function executePlanStepSingleTurtle(planStep)
+    if planStep[3] == 0 then
+        craft(planStep[1], planStep[2])
+    elseif planStep[3] == 1 then
+        smeltSingleTurtle(planStep[1], planStep[2])
+    end
+end
+
+
+
+-- returns a crafting Plan for itemname, also using recipe_machine, and the extraitems generated when crafting them
+-- in the Plan: (=ret[1])
+-- the i-th entry marks the i-th step.
+-- each step has 3 entries: itemname, itemcount, machine
+-- ret[2] is a itemlist, containing all items, which will additionalle get generated when executing the plan due to recipe mults
+function generateCraftingPlan(itemName, itemCount, itemsAvailable)
+    --log("Looking for Plan for "..itemName.." x "..itemCount)
+    if containsItems(itemsAvailable, itemName, itemCount) then
+        itemsAvailable[itemName] = itemsAvailable[itemName] - itemCount
+        return {{},{}}
+    end
+    if isGatherable(itemName) then
+        log("Warning! Must gather "..itemName.." x "..itemCount.." to Execute this Plan!!!")
+        return {{},{}}
+    end
+    if isMineable(itemName) then
+        log("Warning! Must mine "..itemName.." x "..itemCount.." to Execute this Plan!!!")
+        return {{},{}}
+    end
+    if itemsAvailable[itemName] > 0 then
+        local tmp = itemsAvailable[itemName]
+        itemsAvailable[itemName] = nil
+        return generateCraftingPlan(itemName, itemCount - tmp, itemsAvailable)
     end
 
-    return itemsToCraftAvailableHelper(itemname, count, recursion, useExistingItems)
-end
+    setRecipe(itemName)
+    local plan = {{{itemName, math.ceil(itemCount/recipe_outputMult)*recipe_outputMult, recipe_machine}}, {}}
 
-function itemsToCraftAvailableHelper(itemname, count, recursion, notFirstStep)
-    log("Checking for availability of "..count.."  "..itemname)
-     if itemsAvailable(itemname,count,true) and notFirstStep then
-            reserve(itemname, count)
-        else
-            if notFirstStep then
-                local available=maximumItemCountAvailable(itemname)
-                reserve(itemname, available)
-                count=count-available;
-            end
-            if not setRecipe(itemname,count) then
-                -- checks if recipe exists and ALSO sets it
-                log("No Recipe found for "..itemname)
-                return false
-            end
-            local itemsWanted={}
-            for i,_ in pairs(itemsNeeded) do
-                itemsWanted[i]=itemsNeeded[i]
-            end
-            for i,_ in pairs(itemsWanted) do
-                if recursion then
-                    if not itemsToCraftAvailableHelper(i,itemsWanted[i],recursion,true) then
-                        log(i.." not available!")
-                        return false
-                    end
-                else
-                    if not itemsAvailable(i, itemsWanted[i]) then
-                        log(i.." not available!")
-                        return false
-                    end
-                end
-            end
+    local tmpList={}
+    local tmpRecipeMult= recipe_outputMult
+    local tmpMachine = recipe_machine
+    for i,j in pairs(recipes_itemsNeeded) do
+        tmpList[i]=j
+    end
+
+    --attention: cannot work recursively directly with recipes_itemsneeded, as the recursion step would change the recipe!!!
+
+    --for each item, get the resourceCosts list and add them
+    for i,j in pairs(tmpList) do
+        local amount = math.ceil(itemCount/tmpRecipeMult)*j
+        local plan2 = generateCraftingPlan(i,amount, itemsAvailable)
+        plan[1]=concatenateTables(plan[1], plan2[1])
+        -- if itemCount is not 0 modulo tmpRecipeMult, then more items than necessary wil get Crafted! Calculate them and return them too
+        local rest = -itemCount % tmpRecipeMult
+        local restList = {}
+        if rest ~= 0 then
+            restList[itemName] = rest
         end
-    log(itemname.." available!")
-    return true
+        plan[2]=addValues(plan[2],addValues(plan2[2], restList))
+    end
+    return plan
 end
-]]--
 
+
+
+-- Crafts an Item, withouth recursion steps
 function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItems)
     setRecipe(recipeID, count)
     if recipeID =="computercraft:turtle_mining_crafty" then
-            craftTurtle(recipeID, count)
+        craftTurtle(recipeID, count)
         return true
     end
     log("Crafting "..recipeID.." x "..count.." directly")
@@ -69,10 +100,10 @@ function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItem
         local max=maximumItemCountAvailable(recipeID)
         if max>=count then
             log("Items already available in Chests/Inventory!")
-            getFromChests(recipeID,count)
+            getItemsOneType(recipeID,count)
         else
             craft(itemname,count-max,false,false)
-            getFromChests(recipeID,max)
+            getItemsOneType(recipeID,max)
         end
         return true
     end
@@ -125,67 +156,3 @@ function craftTurtle(recipeID, count)
 
 
 end
-
-function swap(this, other)
-
-end
-
---[[function craftRecursively(itemname, count, checkForAvailability, alsoGetAlreadyExistingItems)
-    checkForAvailability=checkForAvailability or false
-    if checkForAvailability then
-        if not itemsToCraftAvailable(itemname,count,true, alsoGetAlreadyExistingItems) then
-            return false
-        end
-    end
-
-    log("Crafting "..itemname.." x "..count.." with recursion")
-
-    if (alsoGetAlreadyExistingItems) then
-        max=maximumItemCountAvailable(itemname)
-        if max>=count then
-            log("Items already available in Chests/Inventory!")
-            getFromChests(itemname,count)
-            return true
-        elseif max>0 then
-            setRecipe(itemname,count-max)
-            local willCraft=mult*(math.ceil((count-max)/mult))
-            --log("COUNTS: "..itemname.."  "..willCraft.."  "..count-willCraft.."  "..max.."  "..mult)
-            log("Crafting "..willCraft.." and getting the Rest from Chests")
-            reserve(itemname,max)
-            craftRecursively(itemname,count-max,false,false)
-
-            getFromChests(itemname,count-willCraft)
-            return true
-        end
-    end
-
-
---log("Still trying to craft "..itemname.." x "..count)
-    if itemsToCraftAvailable(itemname,count,false, false,true) then
-        --can be crafted directly
-        log("Going to craft directly, ingredients available!")
-        craft(itemname,count,false,false)
-    else
-        log("Time to (re-)curse! From: "..itemname.." x "..count)
-        --recursion needs to be done
-        setRecipe(itemname,count)
-        local tmpItemsNeeded={}
-        for item in pairs(itemsNeeded) do
-            tmpItemsNeeded[item]=itemsNeeded[item]
-        end
-        for item in pairs(tmpItemsNeeded) do
-            if not itemsAvailable(item,tmpItemsNeeded[item]) then
-                -- if item is not in chests, it needs to be crafted first
-                craftRecursively(item,tmpItemsNeeded[item],false,true)
-            end
-        end
-        -- now call yourself again, this way:
-        -- if now all items are ready, the wanted item will be crafted directly
-        -- if one of the necessary items was used for crafting another necessary item, it will be crafted again
-        sumInventoryAndAllChests()
-        log("Should now have all ingredients. Retrying crafting!")
-        craftRecursively(itemname,count,false, false)
-    end
-    return true
-end
-]]--

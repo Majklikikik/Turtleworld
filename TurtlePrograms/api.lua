@@ -7,10 +7,10 @@ require("logger")
 require("crafting")
 
 
-function InitiateChests()
+function initiateChests()
     --Collect 6 times Wood, should be of the same Type
     local chunkNum=1
-    while not lookInChunkForWood(chunkNum,6,false,true) do
+    while not lookInChunkForWood(chunkNum,6,true,true) do
         chunkNum=chunkNum + 1
     end
     countInventory()
@@ -47,60 +47,20 @@ function InitiateChests()
 
     turn(directions["NORTH"])
     for _ = 1, chestCount do
-        PlaceChest()
+        placeChest()
     end
 
 end
 
-function Mine(item, quantity)
-    -- drop inventory in chests before and after
-    if not checkMined(item, quantity) then
-        goal[item]= quantity
-        dropInventory()
-        mine(goal)
-        navigate(home)
-        turn(directions["EAST"])
-        saveExtraMined()
-        dropInventory(item, quantity)
-    end
 
-end
-
-function Gather(goal)
-    -- drop inventory in chests before and after
-    dropInventory()
-    gather_wood(goal)
-    navigate(home)
-    turn(directions["EAST"])
-    dropInventory()
-end
-
-
--- Requirement:  Furnace in storage
--- Reward: Smelting is now available
-function PlaceFurnace()
-
-    itemsWanted["minecraft:furnace"] = 1
-    getmissing()
-    build_furnace()
-    navigate(home)
-end
 
 -- Requirement: Chest in Inventory
 -- Reward: Storage System yay
-function PlaceChest()
+function placeChest()
     itemsWanted["minecraft:chest"] = 1
     getmissing()
     build_chest()
     while move_down(false) do end
-end
-
-
---Requirement: Items needed for crafting in inventory or chest
---Reward: Items get crafted
-function Craft(itemname, itemcount)
-    craft(itemname, itemcount, false, false)
-    dropInventory()
 end
 
 -- Requirement: Furnace placed, Items in Inventory

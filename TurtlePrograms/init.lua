@@ -19,4 +19,11 @@ function init_turtle(arg)
 end
 
 
+function initProgressFiles()
+	local h=fs.open("miningProgress.michi","w")
+	h.write("{}")
+	h.close()
+end
+
+
 

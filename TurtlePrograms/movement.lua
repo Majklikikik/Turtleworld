@@ -185,10 +185,21 @@ function turn_right()
 	current_dir = math.fmod(current_dir +1 , 4)
 end
 
-function goFromHouseLeavingPointToChunk(chunkNum)
+function goFromHouseLeavingPointToChunk(chunkNum, underGround)
+	if underGround == nil then underGround = false end
 	log("Moving to Chunk"..chunkNum)
 	local coordinate= spiralNumberToCoordinate(chunkNum)*16
-	goFromHouseLeavingPointToOutsidePointOverground(coordinate)
+	if underGround then
+		goFromHouseLeavingPointToOutsidePointUnderground(coordinate)
+	else
+		goFromHouseLeavingPointToOutsidePointOverground(coordinate)
+	end
+end
+
+function goFromOutsideUndergroundToHouseEntryPoint()
+	navigateCoordinates(18,current_pos.y, -2)
+	navigateCoordinates(20, houseGroundLevel, -2)
+	navigateCoordinates(20, houseGroundLevel, 0)
 end
 
 function goFromHouseLeavingPointToOutsidePointUnderground(pos)
@@ -293,14 +304,6 @@ function navigateOnGround(position)
 
 
 	-- move in x --
-	-- only increase x in even z pos, only decrease x in odd z pos --
-	-- thus turtles wont hit each other in the face and get stuck --
-	if (offset.x > 0 and current_pos.z % 2 == 1) or ((offset.x < 0 and current_pos.z % 2 == 0)) then
-		turn(directions["NORTH"])
-		moveOverGround(0, false)
-		offset.z = offset.z + 1
-	end
-
 	if offset.x > 0 then
 		turn(directions["EAST"])
 	elseif offset.x < 0 then
@@ -341,6 +344,17 @@ function navigate(position)
 			navigate(position)
 		else
 			navigate(position + vector.new(0,0,1))
+			navigate(position)
+		end
+		return
+	end
+
+	if (position.x == current_pos.x and position.z < current_pos.z and position.x % 2 == 0) or(position.x == current_pos.x and position.z > current_pos.z and position.x % 2 == 1) then
+		if position.z%2==0 then
+			navigate(position + vector.new(-1,0,0))
+			navigate(position)
+		else
+			navigate(position + vector.new(1,0,0))
 			navigate(position)
 		end
 		return

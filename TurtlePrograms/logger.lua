@@ -12,15 +12,14 @@ function log(text, name, silent, addHole)
 
 
     if type(text)=="table" then
-        log("Table begin")
+        log("{", nil, nil, addHole)
         if isEmpty(text) then
             log("{}",nil,silent,addHole+4)
-            return
         end
         for i,_ in pairs(text) do
             log(text[i],i, silent, addHole + 4)
         end
-        log("Table End")
+        log("}",nil, nil, addHole)
         return
     end
 
