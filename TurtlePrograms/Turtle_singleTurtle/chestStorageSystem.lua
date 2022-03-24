@@ -97,6 +97,7 @@ end
 
 function gotoStart()
 	--return to the start
+	chests.rot = chests.rot % 4
 	if chests["rot"]==3 then chests["rot"]=-1 end
 	if chests["rot"]==-3 then chests["rot"]=1 end
 	while chests["rot"]<0 do
@@ -120,6 +121,7 @@ function start()
 end
 
 function inventur()
+	log("Stocktaking!")
 	--turtle should have empty inventory when using this methods
 	--counts chests, checks their content, saves all info to file
 	local i=1
@@ -144,19 +146,19 @@ function inventur()
 		else
 			gotoStart()
 			writeChestFile()
+			log("Have Items:")
+			log(getTotalItemCounts())
 			return
 		end
 	end
-
 end
 
 function storeRest()
 	countInventory()
-	log("Dropping rest in Chests")
+	--log("Dropping rest in Chests")
 	--stores everything, which is not needed for the recipe, in chests
 	itemsDesignatedForChest={} --itemsDesignatedForChest[3]=List of items, which should be put in Chest 3
 	itemsToStoreInAnyChest={} -- list of Items which can be put anywhere. itemsToStore[i]= j means j items from slot i can be put anywhere
-
 
 	local tmp=copyTable(itemsWanted)-- List of items which should be kept
 	--check, in which chests to put which items
@@ -177,13 +179,13 @@ function storeRest()
 					end
 				end
 			end
-			log("Looking for PLace for "..putCount.." items")
+			--log("Looking for PLace for "..putCount.." items")
 			while putCount~=0 do
 				-- look for a chest to put "it" in
 				local target=findChestFor(it.name,putCount, minChestIndexForPossibleTarget[it.name])
-				log("Target is: ")
-				log(target)
-				log("PutCount: "..putCount)
+				--log("Target is: ")
+				--log(target)
+				--log("PutCount: "..putCount)
 				if target==nil then
 					itemsToStoreInAnyChest[i]=putCount
 					putCount = 0
@@ -232,14 +234,17 @@ function storeRest()
 end
 
 function getItems(itemList)
+	log("Getting: ")
+	log(itemList)
 	dropInventory()
 	itemsWanted = itemList
 	getmissing()
 end
 
 function getItemsOneType(itemname, count)
+	dropInventory()
 	if count==0 then return end
-	log("Getting "..count.." of "..itemname.." from chests")
+	--log("Getting "..count.." of "..itemname.." from chests")
 	countAndSortInventory()
 	for i,_ in pairs(itemsWanted) do
 		itemsWanted[i]=nil
@@ -247,17 +252,17 @@ function getItemsOneType(itemname, count)
 	if inventory_inv[itemname]==nil then
 		itemsWanted[itemname]=count
 	else
-		itemsWanted[itemname]= inventory_inv[itemname]+count
+		itemsWanted[itemname]=count--   +inventory_inv[itemname]
 	end
 	getmissing()
 end
 
 function getmissing()
-	log("Getting missing items!")
+	--log("Getting missing items!")
 	countAndSortInventory()
 	local tmp={} -- List of items needed for crafting, local copy
 	for i,_ in pairs(itemsWanted) do
-		log("Item Wanted: "..i.." count "..itemsWanted[i])
+		--log("Item Wanted: "..i.." count "..itemsWanted[i])
 		tmp[i]=itemsWanted[i]
 		if inventory_inv[i]~=nil then
 			tmp[i]=tmp[i]- inventory_inv[i]
@@ -267,9 +272,11 @@ function getmissing()
 		end
 	end
 
+
+
 	--check, in which chests the searched items are
 	local toGet={}-- toGet[i][j]= count of items to take from chest i, slot j
-	for i = 1,chests["count"] do
+	for i = chests["count"], 1, -1 do
 		toGet[i]={}
 		for j=8,1,-1 do
 			if chests[i].items[j]~=nil then
@@ -277,6 +284,7 @@ function getmissing()
 				if c~=nil then
 					toGet[i][j]=math.min(c,chests[i].items[j].count)
 					tmp[chests[i].items[j].name]=math.max(0,c-chests[i].items[j].count)
+					if tmp[chests[i].items[j].name] == 0 then tmp[chests[i].items[j].name] = nil end
 				end
 			end
 		end
@@ -288,13 +296,21 @@ function getmissing()
 		end
 	end
 
+
+	if not isEmpty(tmp) then
+		log("Error, couldnt get everything. Couldnt get:")
+		log(tmp)
+		error("Not everything needed was in Chests")
+	end
+
+
 	--get the items
 
 	for i =  1,chests.count  do
 		--if a searched item is in chest i go there
 		if toGet[i]~=nil then
-			log("Getting from chest "..i)
-			log(toGet[i],"from "..i)
+			--log("Getting from chest "..i)
+			--log(toGet[i],"from "..i)
 			gotoChest(i)
 			turtle.select(1)
 			-- take all items
@@ -318,7 +334,7 @@ function getmissing()
 					if chests[i].items[j].count~=toGet[i][j] then
 						chests[i].items[ind]=chests[i].items[j]
 						local dropCount=chests[i].items[j].count-toGet[i][j]
-						log("Dropcount: "..dropCount)
+						--log("Dropcount: "..dropCount)
 						turtle.drop(dropCount)
 						local it={}
 						it.name=chests[i].items[j].name
@@ -368,7 +384,7 @@ function findChestFor(item,Count, minChestIndexForPossibleTarget)
 		for j=1,chests[i]["stackCount"] do
 			if chests[i]["items"][j]~=nil and chests[i]["items"][j]["name"]==item then
 				if chests[i]["items"][j]["count"]<getStackSize(item) then
-					log("Stacksize: "..getStackSize(item)..", itemCount: "..chests[i]["items"][j]["count"]..", Count: "..Count)
+					--log("Stacksize: "..getStackSize(item)..", itemCount: "..chests[i]["items"][j]["count"]..", Count: "..Count)
 					return {chestIndex=i, count=math.min(Count, getStackSize(item)-chests[i]["items"][j]["count"])}
 				end
 			end
@@ -416,7 +432,7 @@ end
 
 function getTotalItemCounts()
 	local totalItemCounts = {}
-	log("Summing up inventory and Chests")
+	--log("Summing up inventory and Chests")
 	countInventory()
 	--log("Counting in inventory")
 	--count from inventory
@@ -474,6 +490,7 @@ function itemsAreAvailable(itemname, count)
 end
 
 function dropInventory()
+	log("Dropping Inventory")
 	for k,_ in pairs(itemsWanted) do
 		itemsWanted[k]=nil
 	end

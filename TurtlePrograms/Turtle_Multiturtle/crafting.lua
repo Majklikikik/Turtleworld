@@ -10,16 +10,20 @@ function craftRecursivelyUsingMachinesHelper(itemname, itemcount, itemsAvailable
     local planAndRest = generateCraftingPlan(itemname, itemcount, itemsAvailable)
     local rest=planAndRest[2]
     local plan = planAndRest[1]
+    log("Plan has "..#plan.." steps")
     for i=#plan, 1, -1 do
+        log("Executing Step #"..i)
         executePlanStepSingleTurtle(plan[i])
     end
 end
 
 function executePlanStepSingleTurtle(planStep)
+    log("Executing Step! Step is:")
+    log(planStep)
     if planStep[3] == 0 then
         craft(planStep[1], planStep[2])
     elseif planStep[3] == 1 then
-        smeltSingleTurtle(planStep[1], planStep[2])
+        smeltSingleTurtleMaxOneStack(planStep[1], planStep[2])
     end
 end
 
@@ -29,8 +33,9 @@ end
 -- in the Plan: (=ret[1])
 -- the i-th entry marks the i-th step.
 -- each step has 3 entries: itemname, itemcount, machine
--- ret[2] is a itemlist, containing all items, which will additionalle get generated when executing the plan due to recipe mults
+-- ret[2] is a itemlist, containing all items, which will additionally get generated when executing the plan due to recipe mults
 function generateCraftingPlan(itemName, itemCount, itemsAvailable)
+    if itemsAvailable == nil then itemsAvailable = {} end
     --log("Looking for Plan for "..itemName.." x "..itemCount)
     if containsItems(itemsAvailable, itemName, itemCount) then
         itemsAvailable[itemName] = itemsAvailable[itemName] - itemCount
@@ -44,7 +49,11 @@ function generateCraftingPlan(itemName, itemCount, itemsAvailable)
         log("Warning! Must mine "..itemName.." x "..itemCount.." to Execute this Plan!!!")
         return {{},{}}
     end
-    if itemsAvailable[itemName] > 0 then
+    if isFarmable(itemName) then
+        log("Warning! Must Farm "..itemName.." x "..itemCount.." to Execute this Plan!!!")
+        return {{},{}}
+    end
+    if itemsAvailable[itemName]~=nil and itemsAvailable[itemName] > 0 then
         local tmp = itemsAvailable[itemName]
         itemsAvailable[itemName] = nil
         return generateCraftingPlan(itemName, itemCount - tmp, itemsAvailable)
@@ -78,13 +87,23 @@ function generateCraftingPlan(itemName, itemCount, itemsAvailable)
     return plan
 end
 
-
+function generateCraftingPlanForItemList(itemList, itemsAvailable)
+    local plan = {{},{}}
+    local tmpPlan = {}
+    for i,j in pairs(itemList) do
+        tmpPlan = generateCraftingPlan(i,j,itemsAvailable)
+        plan[1]=concatenateTables(plan[1],tmpPlan[1])
+        plan[2]=addValues(plan[2],tmpPlan[2])
+    end
+    return plan
+end
 
 -- Crafts an Item, withouth recursion steps
 function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItems)
     setRecipe(recipeID, count)
     if recipeID =="computercraft:turtle_mining_crafty" then
         craftTurtle(recipeID, count)
+        logHasItem(recipeID)
         return true
     end
     log("Crafting "..recipeID.." x "..count.." directly")
@@ -92,6 +111,7 @@ function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItem
     if checkForAvailability then
         log("Warning: checkForAvailability is set true in craft: shouldn't be so!")
         if not itemsToCraftAvailable(itemname,count,false, alsoGetAlreadyExistingItems) then
+            logHasItem(recipeID)
             return false
         end
     end
@@ -105,6 +125,7 @@ function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItem
             craft(itemname,count-max,false,false)
             getItemsOneType(recipeID,max)
         end
+        logHasItem(recipeID)
         return true
     end
     log("Getting items!")
@@ -122,8 +143,20 @@ function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItem
         arrangeInventoryToRecipe()
         turtle.craft(count% recipe_maxCount)
     end
+    logHasItem(recipeID)
     return true
 end
+
+function logHasItem(recipeID)
+    countInventory()
+    if inventory_inv[recipeID]==nil then
+        log("ERROR: Crafted, but got none of "..recipeID)
+        error("Crafted, but got none of item")
+    else
+        log("Crafted and got "..inventory_inv[recipeID].." of "..recipeID)
+    end
+end
+
 -- crafts exactly one crafty mining turtle
 function craftTurtle(recipeID, count)
     sumInventoryAndAllChests()
@@ -140,7 +173,7 @@ function craftTurtle(recipeID, count)
     turtle.craft()
 
     countInventory()
-    turtle.select(inventory_slot["computercraft:turtle_normal"])
+    selectItem("computercraft:turtle_normal")
     turtle.transferTo(13)
 
     sumInventoryAndAllChests()

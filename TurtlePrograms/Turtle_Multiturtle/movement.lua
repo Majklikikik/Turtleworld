@@ -15,6 +15,8 @@ directions["WEST"] = 3
 home = vector.new(-460, 66,207)
 
 basespots_chestBase = vector.new(11, houseGroundLevel, 11)
+basespots_chestQueue = vector.new(11, houseGroundLevel, 7)
+basespots_computerQueue = vector.new(20, houseGroundLevel, 6)
 houseGroundLevel = 65
 
 houseFrom=vector.new(0,60,0)
@@ -28,6 +30,8 @@ current_pos ={}
 function setHouseGroundLevel(level)
 	houseGroundLevel = level
 	basespots_chestBase.y=level
+	basespots_computerQueue.y = level
+	basespots_chestQueue.y = level
 end
 
 function write_pos()
@@ -47,7 +51,9 @@ function read_pos()
 	h.close()
 end
 
-
+function logPos()
+	log("Current Position: "..current_pos.x..":"..current_pos.y..":"..current_pos.z)
+end
 
 
 function move_forward(force)
@@ -185,11 +191,13 @@ function turn_right()
 	current_dir = math.fmod(current_dir +1 , 4)
 end
 
-function goFromHouseLeavingPointToChunk(chunkNum, underGround)
+function goFromHouseLeavingPointToChunk(chunkNum, underGround, height)
 	if underGround == nil then underGround = false end
 	log("Moving to Chunk"..chunkNum)
 	local coordinate= spiralNumberToCoordinate(chunkNum)*16
 	if underGround then
+		coordinate.y = height
+		log("To height "..height..", pos "..coordinate.x..":"..coordinate.y..":"..coordinate.z)
 		goFromHouseLeavingPointToOutsidePointUnderground(coordinate)
 	else
 		goFromHouseLeavingPointToOutsidePointOverground(coordinate)
@@ -204,7 +212,7 @@ end
 
 function goFromHouseLeavingPointToOutsidePointUnderground(pos)
 	navigateCoordinates(17,houseGroundLevel,-2)
-	navigateCoordinates(pos)
+	navigate(pos)
 end
 
 function goFromHouseLeavingPointToOutsidePointOverground(pos)
@@ -322,7 +330,7 @@ function navigateOnGround(position)
 
 	end
 	while move_down(false) do end
-	log("going finished")
+	--log("going finished")
 end
 
 
@@ -434,7 +442,7 @@ function navigate(position)
 
 	end
 
-	log("going finished")
+	--log("going finished")
 end
 
 

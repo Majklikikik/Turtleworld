@@ -8,11 +8,14 @@ require("crafting")
 require("generalHelpingFunctions")
 require("itemstacksizesAndMaxCounts")
 require("recipes")
-require("api")
 require("mining")
 require("standardValues")
 require("recipesInitiation")
 require("resourceCalculator")
-
+require("singleTurtlePrograms")
+require("build")
+require("smelting")
+require("communication")
+require("mainPlanner")
 start() --chestStorageSystem
 

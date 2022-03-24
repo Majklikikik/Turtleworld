@@ -1,11 +1,16 @@
+resourcesMineable = {}      -- can be collected from surface
+resourcesGatherable = {}    -- can be mined
+resourcesFarmable = {}      -- farm built
 
 function machineRunningCosts(machineNum, useCount)
     if machineNum == 0 then return {} end
     if machineNum == 1 then
         local ret = {}
-        ret["minecraft:coal"]=useCount
+        ret["minecraft:coal"]= useCount
+        return ret
     end
     log("ERROR: Unknown Machine, #"..machineNum)
+    error("Unknown Machine")
 end
 
 function resourceCostsList(toMake, itemsAvailable)
@@ -14,6 +19,7 @@ function resourceCostsList(toMake, itemsAvailable)
 end
 
 function resourceCostsListHelper(toMake, itemsAvailable)
+    if toMake == nil then return {} end
     local ret = {}
     for i,j in pairs(toMake) do
             ret = addValues(ret, resourceCosts(i, j, itemsAvailable))
@@ -42,7 +48,7 @@ function resourceCostsHelper(itemname, itemcount, itemsAvailable)
         end
         end
     local ret={}
-    if isMineable(itemname) or isGatherable(itemname) then
+    if isMineable(itemname) or isGatherable(itemname) or isFarmable(itemname) then
         ret[itemname]=itemcount
         return ret
     elseif setRecipe(itemname) then
@@ -63,31 +69,42 @@ function resourceCostsHelper(itemname, itemcount, itemsAvailable)
             local amount = math.ceil(itemcount/tmpRecipeMult)*j
             ret=addValues(ret, resourceCostsHelper(i,amount, itemsAvailable))
         end
-        ret = addValues(ret,machineRunningCosts(tmpMachine, math.ceil(itemcount/tmpRecipeMult)))
+        ret = addValues(ret,resourceCostsListHelper(machineRunningCosts(tmpMachine, math.ceil(itemcount/tmpRecipeMult)),itemsAvailable))
         return ret
     else
-        log("Error: Didn't find Recipe for "..itemname..", but it also neither mineable nor gatherable.")
+        log("Error: Didn't find Recipe for "..itemname..", but it also neither mineable nor gatherable nor farmable.")
+        error("Recipe Unknown, but also neither Gatherable nor Mineable")
         return nil
     end
 end
 
 function isMineable(itemname)
-    if itemname=="minecraft:iron_ore" then return true end
-    if itemname=="minecraft:gold_ore" then return true end
-    if itemname=="minecraft:cobblestone" then return true end
-    if itemname=="minecraft:diamond" then return true end
-    if itemname=="minecraft:redstone" then return true end
-    if itemname=="minecraft:coal" then return true end
-    if itemname=="emendatusenigmatica:iron_chunk" then return true end
-    if itemname=="emendatusenigmatica:gold_chunk" then return true end
-    return false
+    return resourcesMineable[itemname]==true
 end
 
 function isGatherable(itemname)
-    if itemname==woodsName then return true end
-    if itemname=="minecraft:sand" then return true end
-    if itemname=="minecraft:dirt" then return true end
-    return false
+    return resourcesGatherable[itemname]==true
+end
+
+function isFarmable(itemname)
+    return resourcesFarmable[itemname] == true
+end
+
+function initGatherableAndMineableResources()
+    resourcesMineable["minecraft:iron_ore"]=true
+    resourcesMineable["minecraft:gold_ore"]=true
+    resourcesMineable["minecraft:cobblestone"]=true
+    resourcesMineable["minecraft:diamond"]=true
+    resourcesMineable["minecraft:redstone"]=true
+    resourcesMineable["minecraft:coal"]=true
+    resourcesMineable["minecraft:lapis_lazuli"]=true
+    resourcesMineable["emendatusenigmatica:iron_chunk"]=true
+    resourcesMineable["emendatusenigmatica:gold_chunk"]=true
+
+    resourcesGatherable["minecraft:sand"]=true
+    resourcesGatherable["minecraft:dirt"]=true
+    resourcesGatherable["minecraft:sugar_cane"]=true
+    resourcesGatherable[woodsName]=true
 end
 
 function mineableResources(resourceList)
@@ -104,6 +121,16 @@ function gatherableResources(resourceList)
     local ret={}
     for i,j in pairs(resourceList) do
         if isGatherable(i) then
+            ret[i]=j
+        end
+    end
+    return ret
+end
+
+function farmableResources(resourceList)
+    local ret={}
+    for i,j in pairs(resourceList) do
+        if isFarmable(i) then
             ret[i]=j
         end
     end

@@ -36,7 +36,21 @@ function countInventory()
 			end
 		end
 	end
-	log("Counted inventory!")
+	inventory_inv[woodsName] = 0
+	inventory_inv[planksName] = 0
+	for _,j in pairs(woods) do
+		if inventory_inv[j] ~= nil then
+			inventory_inv[woodsName] = inventory_inv[woodsName] + inventory_inv[j]
+		end
+	end
+	if inventory_inv[woodsName]==0 then inventory_inv[woodsName]=nil end
+	for _,j in pairs(planks) do
+		if inventory_inv[j] ~= nil then
+			inventory_inv[planksName] = inventory_inv[planksName] + inventory_inv[j]
+		end
+	end
+	if inventory_inv[planksName]==0 then inventory_inv[planksName]=nil end
+	--log("Counted inventory!")
 end
 
 function printInventoryNames()
@@ -146,7 +160,12 @@ function dropAbundantItemsNoChest(maxStacks)
 					stackCounts[itemDet.name]=0
 					itemCounts[itemDet.name]=0
 				end
-				if stackCounts[itemDet.name]>=maxStacks then
+				local maxStackCount = maxStacks
+				if type(maxStackCount) == "table" then
+					maxStackCount = maxStackCount[itemDet.name]
+					if maxStackCount == nil then maxStackCount = 2 end
+				end
+				if stackCounts[itemDet.name]>= maxStackCount then
 					if doLog then log(3) end
 					turtle.select(i) turtle.drop()
 				else
@@ -209,21 +228,14 @@ function countLogs(mustBeSameTreeType)
 	if mustBeSameTreeType == nil then mustBeSameTreeType = false end
 	countInventory()
 	local logs = 0
-	if mustBeSameTreeType then
-		logs = math.max(logs , countOf("minecraft:spruce_log"))
-		logs = math.max(logs , countOf("minecraft:birch_log"))
-		logs = math.max(logs , countOf("minecraft:oak_log"))
-		logs = math.max(logs , countOf("minecraft:jungle_log"))
-		logs = math.max(logs , countOf("minecraft:acacia_log"))
-		logs = math.max(logs , countOf("minecraft:dark_oak_log"))
-	else
-		logs = logs + countOf("minecraft:spruce_log")
-		logs = logs + countOf("minecraft:birch_log")
-		logs = logs + countOf("minecraft:oak_log")
-		logs = logs + countOf("minecraft:jungle_log")
-		logs = logs + countOf("minecraft:acacia_log")
-		logs = logs + countOf("minecraft:dark_oak_log")
+	for _,j in pairs(woods) do
+		if mustBeSameTreeType then
+			logs = math.max(logs , countOf(j))
+		else
+			logs = logs + countOf(j)
+		end
 	end
+
 	return logs
 end
 function countOf(itemname)

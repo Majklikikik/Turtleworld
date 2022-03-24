@@ -24,7 +24,7 @@ function arrangeInventoryToRecipe()
 	--Arranges the inventory to the shape of the recipe
 	countInventory()
 	log("Arranging Inventory to craft ".. recipe_count .." times.")
-	verbose=true
+	verbose=false
 	for i=1,16 do
 		if inventory_items[i]~=nil then
 			turtle.select(i)
@@ -43,10 +43,11 @@ function arrangeInventoryToRecipe()
 end
 
 function setRecipe(id,c)
-	log("Setting recipe for "..id)
+	--log("Setting recipe for "..id)
 	recipe_count =c or 1
 	recipe_name =id
 	if recipe_recipes[id] == nil then
+		log("Setting recipe for "..id)
 		log("Recipe not found!")
 		return false;
 	end

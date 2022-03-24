@@ -31,14 +31,14 @@ function initiateComputercraftCraftingRecipes()
 
     recipe_recipes["computercraft:turtle_mining"]={}
     recipe_recipes["computercraft:turtle_mining"]["machine"] = 0
-    recipe_recipes["computercraft:turtle_mining"]["rec"] = { { nil, nil, nil}, { { "minecraft:diamond_pickaxe"}, { "computercraft:turtle_normal"}, nil }, { nil, nil, nil}}
-    recipe_recipes["computercraft:turtle_mining"]["maxCount"] =8
+    recipe_recipes["computercraft:turtle_mining"]["rec"] = { {}, { { "minecraft:diamond_pickaxe"}, { "computercraft:turtle_normal"}}, {}}
+    recipe_recipes["computercraft:turtle_mining"]["maxCount"] =1
     recipe_recipes["computercraft:turtle_mining"]["outputMult"] = 1
 
     recipe_recipes["computercraft:turtle_mining_crafty"]={}
     recipe_recipes["computercraft:turtle_mining_crafty"]["machine"] = 0
-    recipe_recipes["computercraft:turtle_mining_crafty"]["rec"] = { { nil, nil, nil}, { nil , { "computercraft:turtle_normal"}, { "minecraft:crafting_bench"} }, { nil, nil, nil}}
-    recipe_recipes["computercraft:turtle_mining_crafty"]["maxCount"] =8
+    recipe_recipes["computercraft:turtle_mining_crafty"]["rec"] = { { }, { nil , { "computercraft:turtle_normal"}, { "minecraft:crafting_bench"} }, { }}
+    recipe_recipes["computercraft:turtle_mining_crafty"]["maxCount"] =64
     recipe_recipes["computercraft:turtle_mining_crafty"]["outputMult"] = 1
 
     recipe_recipes["computercraft:monitor_advanced"]={}
@@ -46,6 +46,18 @@ function initiateComputercraftCraftingRecipes()
     recipe_recipes["computercraft:monitor_advanced"]["rec"] = { { { "minecraft:gold_ingot"}, { "minecraft:gold_ingot"}, { "minecraft:gold_ingot"}} , { { "minecraft:gold_ingot"}, { "minecraft:gold_ingot"}, { "minecraft:glass_pane"}} , { { "minecraft:gold_ingot"}, { "minecraft:gold_ingot"}, { "minecraft:gold_ingot"}}}
     recipe_recipes["computercraft:monitor_advanced"]["maxCount"] = 32
     recipe_recipes["computercraft:monitor_advanced"]["outputMult"] = 4
+
+    recipe_recipes["computercraft:disk"]={}
+    recipe_recipes["computercraft:disk"]["machine"] = 0
+    recipe_recipes["computercraft:disk"]["rec"] = { { {"minecraft:redstone"}, { "minecraft:paper"}} , { { "minecraft:blue_dye"}} , {}}
+    recipe_recipes["computercraft:disk"]["maxCount"] = 1
+    recipe_recipes["computercraft:disk"]["outputMult"] = 1
+
+    recipe_recipes["computercraft:disk_drive"]={}
+    recipe_recipes["computercraft:disk_drive"]["machine"] = 0
+    recipe_recipes["computercraft:disk_drive"]["rec"] = { { { "minecraft:stone"}, { "minecraft:stone"}, { "minecraft:stone"}}, { { "minecraft:stone"}, { "minecraft:redstone"}, { "minecraft:stone" }}, { { "minecraft:stone"}, { "minecraft:redstone"}, { "minecraft:stone"}}}
+    recipe_recipes["computercraft:disk_drive"]["maxCount"] = 9
+    recipe_recipes["computercraft:disk_drive"]["outputMult"] = 1
 end
 
 function initiateMinecraftCraftingRecipes()
@@ -94,7 +106,7 @@ function initiateMinecraftCraftingRecipes()
     recipe_recipes["minecraft:furnace"]={}
     recipe_recipes["minecraft:furnace"]["machine"] = 0
     recipe_recipes["minecraft:furnace"]["rec"] = { { { "minecraft:cobblestone"}, { "minecraft:cobblestone"}, { "minecraft:cobblestone"}}, { { "minecraft:cobblestone"}, nil, { "minecraft:cobblestone"}}, { { "minecraft:cobblestone"}, { "minecraft:cobblestone"}, { "minecraft:cobblestone"}}}
-    recipe_recipes["minecraft:furnace"]["maxCount"] =64
+    recipe_recipes["minecraft:furnace"]["maxCount"] =8
     recipe_recipes["minecraft:furnace"]["outputMult"] = 1
 
     recipe_recipes["minecraft:crafting_bench"]={}
@@ -105,9 +117,33 @@ function initiateMinecraftCraftingRecipes()
 
     recipe_recipes["minecraft:stone_bricks"]={}
     recipe_recipes["minecraft:stone_bricks"]["machine"] = 0
-    recipe_recipes["minecraft:stone_bricks"]["rec"] = { {  { "computercraft:stone"}, { "minecraft:stone"},  nil}, {  { "computercraft:stone"}, { "minecraft:stone"} , nil}, { nil, nil, nil}}
+    recipe_recipes["minecraft:stone_bricks"]["rec"] = { {  { "minecraft:stone"}, { "minecraft:stone"},  nil}, {  { "minecraft:stone"}, { "minecraft:stone"} , nil}, { nil, nil, nil}}
     recipe_recipes["minecraft:stone_bricks"]["maxCount"] = 64
     recipe_recipes["minecraft:stone_bricks"]["outputMult"] = 4
+
+    recipe_recipes["minecraft:paper"]={}
+    recipe_recipes["minecraft:paper"]["machine"] = 0
+    recipe_recipes["minecraft:paper"]["rec"] = { {}, {{ "minecraft:sugar_cane"}, { "minecraft:sugar_cane"}, { "minecraft:sugar_cane"}}, {} }
+    recipe_recipes["minecraft:paper"]["maxCount"] = 63
+    recipe_recipes["minecraft:paper"]["outputMult"] = 3
+
+    recipe_recipes["minecraft:blue_dye"]={}
+    recipe_recipes["minecraft:blue_dye"]["machine"] = 0
+    recipe_recipes["minecraft:blue_dye"]["rec"] = { {}, {{ "minecraft:lapis_lazuli"}}, {} }
+    recipe_recipes["minecraft:blue_dye"]["maxCount"] = 64
+    recipe_recipes["minecraft:blue_dye"]["outputMult"] = 1
+
+    recipe_recipes["minecraft:bucket"]={}
+    recipe_recipes["minecraft:bucket"]["machine"] = 0
+    recipe_recipes["minecraft:bucket"]["rec"] = { {}, {{ "minecraft:iron_ingot"}, nil,{ "minecraft:iron_ingot"} }, {nil, { "minecraft:iron_ingot"}} }
+    recipe_recipes["minecraft:bucket"]["maxCount"] = 16
+    recipe_recipes["minecraft:bucket"]["outputMult"] = 1
+
+    recipe_recipes["minecraft:lever"]={}
+    recipe_recipes["minecraft:lever"]["machine"] = 0
+    recipe_recipes["minecraft:lever"]["rec"] = { {{ "minecraft:stick"}}, {{ "minecraft:cobblestone"}}, {} }
+    recipe_recipes["minecraft:lever"]["maxCount"] = 64
+    recipe_recipes["minecraft:lever"]["outputMult"] = 1
 
 end
 

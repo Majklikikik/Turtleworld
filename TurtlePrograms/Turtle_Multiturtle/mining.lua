@@ -58,7 +58,7 @@ function getMiningTunnelStartPosition(chunkNum, tunnelNum)
 end
 
 
-function mineAndReturnToHouse(chunkNum, fromTunnel, maxTunnelCount, itemsToMine)
+function mineAndReturnToHouse(chunkNum, fromTunnel, maxTunnelCount, itemsToMine, stackCountsToKeep)
     local ret = mine(chunkNum, fromTunnel, maxTunnelCount, itemsToMine)
     goFromOutsideUndergroundToHouseEntryPoint()
     return ret
@@ -69,9 +69,13 @@ end
 -- 1) the number of the last tunnel, if all items wanted got mined
 -- 2) false, if maxTunnelCount tunnels got mined
 -- 3) nil, if the Chunk got drained (no more Tunnels are possible)
-function mine(chunkNum, fromTunnel, maxTunnelCount, itemsToMine)
+function mine(chunkNum, fromTunnel, maxTunnelCount, itemsToMine, stackCountsToKeep)
+    if stackCountsToKeep == nil then stackCountsToKeep = 2 end
     log("Mining Chunk "..chunkNum.." from Tunnel #"..fromTunnel.." , up to "..maxTunnelCount.." tunnels")
-    goFromHouseLeavingPointToChunk(chunkNum, true)
+    local startPointHeight = getMiningTunnelStartPosition(chunkNum, fromTunnel)
+    if startPointHeight == nil then startPointHeight = 1 else startPointHeight = startPointHeight.y end
+    log("Height of the first tunnel: "..startPointHeight)
+    goFromHouseLeavingPointToChunk(chunkNum, true, startPointHeight)
     for i=fromTunnel,fromTunnel + maxTunnelCount -1 do
         --means the Chunk got completely mined
         if getMiningTunnelStartPosition(chunkNum, i)==nil then return nil end

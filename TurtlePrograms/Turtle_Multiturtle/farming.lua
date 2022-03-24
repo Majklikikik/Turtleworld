@@ -1,12 +1,12 @@
 function readFarmingProgressFile()
     local h = fs.open("farmingProgress.michi", "r")
+    if h == nil then return {} end
     local ret = textutils.unserialize(h.readAll())
     h.close()
     return ret
 end
 
 function writeFarmingProgressFile(table)
-    local save = {}
     local h = fs.open("farmingProgress.michi", "w")
     h.write(textutils.serialize(table))
     h.close()
@@ -26,6 +26,7 @@ end
 
 function readGatheringProgressFile()
     local h = fs.open("gatheringProgress.michi", "r")
+    if h == nil then return {} end
     local ret = textutils.unserialize(h.readAll())
     h.close()
     return ret
@@ -59,6 +60,8 @@ end
 function lookInChunkForWood(chunkNum,woodCount, collectingSaplings, mustBeSameTreeType)
     log("Farming Wood in Chunk "..chunkNum)
     goFromHouseLeavingPointToChunk(chunkNum)
+    log("Arrived at Chunk.")
+    logPos()
     return lookInCurrentChunkForWood(woodCount, collectingSaplings, mustBeSameTreeType)
 end
 
@@ -73,6 +76,7 @@ function lookInCurrentChunkForWood(woodCount, collectingSaplings, mustBeSameTree
     if mustBeSameTreeType == nil then mustBeSameTreeType = false end
     -- assume a spawn on the lower left (x and z minimal within the chunk)
     turn(directions["NORTH"])
+    checkTree(collectingSaplings)
     for i=1,8 do
         for i=1,15 do
             if collectingSaplings then turtle.suck() end
@@ -143,8 +147,13 @@ function clearTreeBlock()
 end
 
 function checkTreeAndMove(collectingSaplings)
-    while turtle.down() do end
+    while move_down(false) do end
     moveOverGround()
+    checkTree(collectingSaplings)
+    return gotSomething
+end
+
+function checkTree(collectingSaplings)
     local a,b=turtle.inspectDown()
     local gotSomething = false
     while a and isTreePart(b) do
@@ -164,9 +173,12 @@ function checkTreeAndMove(collectingSaplings)
                 turn_right()
             end
         end
+        a,b = turtle.inspectUp()
+        if a and isTreePart(b) then
+            moveOverGround(1,false)
+        end
         a,b=turtle.inspectDown()
     end
-    return gotSomething
 end
 
 function isTreePart(block)
@@ -188,39 +200,69 @@ function isTreePart(block)
             or block.name=="myrtrees:rubberwood_leaves"
 end
 
--- Return Values:
--- True: Got all Blocks, chunk not Cleared
--- False: Chunk cleared, didn't get all Blocks
-function gatherBlockFromSurfaceInChunk(chunkNum, blockName, count)
+--collects all Blocks from the blockList within this chunk
+-- returns : Array, where ret[name]= false means that all items with that name got gathered
+-- elseweise the value is nil
+function gatherBlocksFromSurfaceInChunk(chunkNum, blockList, airBlockToIgnore, collectAllList)
+    if airBlockToIgnore == nil then airBlockToIgnore = 3 end
+    if collectAllList == nil then collectAllList = {} end
+
+    blockList = copyTable(blockList)
+    --log(blockList)
     goFromHouseLeavingPointToChunk(chunkNum)
     turn(directions["NORTH"])
+    checkBlock(blockList, airBlockToIgnore, collectAllList)
     for i=1,8 do
         for i=1,15 do
-            if moveAndCheckBlock(blockname) then return true end
+            moveAndCheckBlock(blockList, airBlockToIgnore, collectAllList)
         end
         turn_right()
-        if moveAndCheckBlock(blockname) then return true end
+        moveAndCheckBlock(blockList, airBlockToIgnore, collectAllList)
         turn_right()
         for i=1,15 do
-            if moveAndCheckBlock(blockname) then return true end
+            moveAndCheckBlock(blockList, airBlockToIgnore, collectAllList)
         end
         if i~=8 then
             turn_left()
-            if moveAndCheckBlock(blockname) then return true end
+            moveAndCheckBlock(blockList, airBlockToIgnore, collectAllList)
             turn_left()
         end
     end
     --if collectingSaplings then turn_right() collectSaplings() end
-    return false
+
+    -- if something is still in the list, all of that name got farmed, so there is no more of it in this chunk
+    local ret = {}
+    for i,_ in pairs(blockList) do
+        ret[i] = false
+    end
+    return ret
 end
 
-function moveAndCheckBlock(blockname)
+function moveAndCheckBlock(blockList, airBlockToIgnore, collectAllList)
     moveOverGround()
-    local c,d = turtle.inspectDown()
-    while c and d.name==blockName do
-        move_down()
+    checkBlock(blockList, airBlockToIgnore, collectAllList)
+end
+
+
+function checkBlock(blockList, airBlockToIgnore, collectAllList)
+    for i=1,airBlockToIgnore do
+        moveOverGround(1,false)
     end
-    countInventory()
-    if inventory_inv[blockName]~=nil and inventory_inv[blockname] >= count then return true end
-    return false
+    for i=1,airBlockToIgnore do
+        move_down(false)
+    end
+    local c,d = turtle.inspectDown()
+    if c and d.name == "minecraft:grass_block" then
+        d.name = "minecraft:dirt"
+        --log("Grass found")
+    end
+    --log(blockList)
+    while c and has_key(blockList, d.name) do
+        --log("Found Something!")
+        blockList[d.name]=blockList[d.name]-1
+        if blockList[d.name] <= 0 and collectAllList[d.name]==nil then blockList[d.name] = nil end
+        move_down()
+        c,d = turtle.inspectDown()
+        if c and d.name == "minecraft:grass_block" then d.name = "minecraft:dirt" end
+    end
 end

@@ -9,12 +9,21 @@ end
 
 function has_value (tab, val)
     tab = tab or {}
-    for index, value in ipairs(tab) do
+    for _, value in pairs(tab) do
         if value == val then
             return true
         end
     end
+    return false
+end
 
+function has_key (tab, key)
+    tab = tab or {}
+    for index, _ in pairs(tab) do
+        if index == key then
+            return true
+        end
+    end
     return false
 end
 
@@ -56,86 +65,6 @@ function spiralNumberToCoordinateArray(num)
     elseif (num<8*i-4)then
         return {-7*i+6+(num),-i+1}
     end
-end
-
--- https://stackoverflow.com/questions/9168058/how-to-dump-a-table-to-console
-function print_table(node)
-    local cache, stack, output = {},{},{}
-    local depth = 1
-    local output_str = "{\n"
-
-    while true do
-        local size = 0
-        for k,v in pairs(node) do
-            size = size + 1
-        end
-
-        local cur_index = 1
-        for k,v in pairs(node) do
-            if (cache[node] == nil) or (cur_index >= cache[node]) then
-
-                if (string.find(output_str,"}",output_str:len())) then
-                    output_str = output_str .. ",\n"
-                elseif not (string.find(output_str,"\n",output_str:len())) then
-                    output_str = output_str .. "\n"
-                end
-
-                -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
-                table.insert(output,output_str)
-                output_str = ""
-
-                local key
-                if (type(k) == "number" or type(k) == "boolean") then
-                    key = "["..tostring(k).."]"
-                else
-                    key = "['"..tostring(k).."']"
-                end
-
-                if (type(v) == "number" or type(v) == "boolean") then
-                    output_str = output_str .. string.rep('\t',depth) .. key .. " = "..tostring(v)
-                elseif (type(v) == "table") then
-                    output_str = output_str .. string.rep('\t',depth) .. key .. " = {\n"
-                    table.insert(stack,node)
-                    table.insert(stack,v)
-                    cache[node] = cur_index+1
-                    break
-                else
-                    output_str = output_str .. string.rep('\t',depth) .. key .. " = '"..tostring(v).."'"
-                end
-
-                if (cur_index == size) then
-                    output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
-                else
-                    output_str = output_str .. ","
-                end
-            else
-                -- close the table
-                if (cur_index == size) then
-                    output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
-                end
-            end
-
-            cur_index = cur_index + 1
-        end
-
-        if (size == 0) then
-            output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
-        end
-
-        if (#stack > 0) then
-            node = stack[#stack]
-            stack[#stack] = nil
-            depth = cache[node] == nil and depth + 1 or depth - 1
-        else
-            break
-        end
-    end
-
-    -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
-    table.insert(output,output_str)
-    output_str = table.concat(output)
-
-    log(output_str)
 end
 
 function logNameOfBlockInFront()
@@ -192,7 +121,7 @@ function subtractValuesPositive(table1, table2)
         for i,j in pairs(table2) do
             if ret[i]~=nil then
                 ret[i]=math.max(ret[i]-j)
-                if ret[i]==0 then ret[i] = nil end
+                if ret[i]<=0 then ret[i] = nil end
             end
         end
     end
@@ -229,14 +158,45 @@ end
 
 -- Returns true, if the first itemlist contains all items in the second itemlist
 function containsItems(table1, itemname, itemcount)
-        if table1[itemname] == nil then return false end
-        if table1[itemname]<itemcount then return false end
+    if table1 == nil then
+        log("Error, table is nil!")
+        error("Table is nil")
+    end
+    if table1[itemname] == nil then return false end
+    if table1[itemname]<itemcount then return false end
     return true
 end
 
 function concatenateTables(t1,t2)
+    if t1 == nil then
+        log("Error, table 1 is nil")
+        error("Table nil")
+    end
+    if t2 == nil then
+        log("Error, table 2 is nil")
+        error("Table nil")
+    end
     for i=1,#t2 do
         t1[#t1+1] = t2[i]
     end
     return t1
+end
+
+function compress(str)
+    local str2=str, b
+    str2=string.gsub(str2, "\t", " ")
+    str2=string.gsub(str2, "\n", " ")
+    str2=string.gsub(str2, " ", "")
+    str2=string.gsub(str2,"minecraft:","mc:")
+    str2=string.gsub(str2, "computercraft:", "cc:")
+    str2=string.gsub(str2, "emendatusenigmatica:", "ee:")
+    return str2
+end
+
+function uncompress(str)
+    local str2=str
+    str2=string.gsub(str2, "mc:", "minecraft:")
+    str2=string.gsub(str2, "cc:", "computercraft:")
+    str2=string.gsub(str2, "ee:", "emendatusenigmatica:")
+    return str2
 end
