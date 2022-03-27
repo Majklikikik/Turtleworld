@@ -1,13 +1,11 @@
 function standardvalues_baseBuildingItems()
     local ret={}
-    ret["computercraft:computer_normal"] = 1
     --ret["computercraft:monitor_advanced"] = 12--8*6*2 Needs too much gold, put it in first base expansion instead
     ret["computercraft:turtle_normal"] = 2
-    ret["minecraft:redstone"] = 20
     ret["computercraft:disk"] = 1
     ret["computercraft:disk_drive"] = 1
     ret["minecraft:diamond_pickaxe"] = ret["computercraft:turtle_normal"]
-    ret["minecraft:stone_bricks"]=29
+    ret["minecraft:stone_bricks"]=1
     ret["minecraft:lever"] = 1
     return ret
 end

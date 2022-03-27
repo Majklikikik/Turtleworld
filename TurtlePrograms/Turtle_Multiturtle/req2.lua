@@ -1,0 +1,13 @@
+require("movement")
+require("init")
+require("farming")
+require("inventory")
+require("logger")
+require("crafting")
+require("generalHelpingFunctions")
+require("itemstacksizesAndMaxCounts")
+require("mining")
+require("build")
+require("smelting")
+require("communication")
+

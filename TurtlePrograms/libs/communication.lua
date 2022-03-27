@@ -1,7 +1,9 @@
 charToInts = {}
 
 intsToChar={}
-
+answerTypes={}
+answerTypes["NOTHING"]="nothing"
+answerTypes["ACTION_DONE"]="done"
 
 function initCommunication()
 	intsToChar = {

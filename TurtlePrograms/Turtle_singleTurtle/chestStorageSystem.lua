@@ -1,7 +1,3 @@
-require("logger")
-require("inventory")
-require("generalHelpingFunctions")
-require("itemstacksizesandMaxCounts")
 chests={} --contains all information about the count of chests and their content
 totalItemCounts={} -- total item counts over all chests
 itemsWanted={} -- itemsWanted[itemname]=count
@@ -403,11 +399,13 @@ function getItemsFor( itemname, count )
 	for i,_ in pairs(itemsWanted) do
 		itemsWanted[i]=nil
 	end
+	log(recipes_itemsNeeded)
 	for i,_ in pairs(recipes_itemsNeeded) do
 		if i==woodsName then
 			local tmp= recipes_itemsNeeded[i]
 			for _,k in pairs(woods) do
 				if (tmp>0 and totalItemCounts[k]~=nil and totalItemCounts[k]>0) then
+					log("tmp: "..tmp.." Total: "..totalItemCounts[k])
 					itemsWanted[k]=math.min(totalItemCounts[k],tmp)
 					tmp=tmp-itemsWanted[k]
 				end
@@ -416,6 +414,7 @@ function getItemsFor( itemname, count )
 			local tmp= recipes_itemsNeeded[i]
 			for _,k in pairs(planks) do
 				if (tmp>0 and totalItemCounts[k]~=nil and totalItemCounts[k]>0) then
+					log("tmp: "..tmp.." Total: "..totalItemCounts[k])
 					itemsWanted[k]=math.min(totalItemCounts[k],tmp)
 					tmp=tmp-itemsWanted[k]
 				end
@@ -424,6 +423,7 @@ function getItemsFor( itemname, count )
 			itemsWanted[i]= recipes_itemsNeeded[i]
 		end
 	end
+	log(itemsWanted)
 	--store the rest in chests
 	storeRest()
 	--get the missing items

@@ -29,6 +29,8 @@ function requeueStep()
     ret.itemsDone = 0
     ret.outMult = 1
     ret.preconditions = {}
+    ret.activeActionCount = 0
+    ret.name="requeue"
     return ret
 end
 
@@ -38,17 +40,36 @@ function getStep(stepnum)
         plan.type = actionTypes["EXECUTING"]
         plan.args = "buildTurtle"
         plan.totalActionCount = 10
+        plan.activeActionCount = 0
         local itemsNeeded={}
         itemsNeeded["computercraft:turtle_normal"]=1
         itemsNeeded["minecraft:diamond_pickaxe"]=1
         plan.itemsDone = 0
         plan.outMult=1
         plan.preconditions=generateObtainmentPlanForList(itemsNeeded, plan.totalActionCount)
+        plan.name="Build Turtle"
         return plan
     end
     log("Error, stepnum not implementes: ")
     log(stepnum)
     error("Stepnum not implemented")
+end
+
+function itemsNeededForExecutingMaxOneStack(step)
+    local preSteps = generateMachineUsingPresteps(step.args[1],1)
+    local itemsNeeded= {}
+    for _,j in pairs(preSteps) do
+        if itemsNeeded[j.name]==nil then
+            itemsNeeded[j.name]=j.totalActionCount*j.outMult
+        else
+            itemsNeeded[j.name]=itemsNeeded[j.name]+j.totalActionCount*j.outMult
+        end
+    end
+    setRecipe(step.name)
+    itemsNeeded=addValues(itemsNeeded, recipes_itemsNeeded)
+
+    local count = math.min(recipe_maxCount/recipe_outputMult, step.availableSteps)
+    return multiplicate(itemsNeeded,count)
 end
 
 function generateObtainmentPlanForList(itemList, count)
@@ -95,6 +116,7 @@ function generateObtainmentPlanForItem(itemname, totalItemCount, necessaryForSte
     else
         plan.type = actionTypes.MACHINE_USING
         plan.preconditions = generateMachineUsingPresteps(recipe_machine,plan.totalActionCount)
+        plan.args={recipe_machine}
     end
     plan.outMult = recipe_outputMult
     plan.preconditions = concatenateTables(plan.preconditions, generateObtainmentPlanForList(copyTable(recipes_itemsNeeded),plan.totalActionCount))
@@ -111,7 +133,10 @@ function generateMachineUsingPresteps(machineNum, count)
 end
 
 function addItemsToPlanAndCalculateAvailableSteps(plan, items)
+    return addItemsToPlanAndCalculateAvailableStepsHelper(plan, copyTable(items))
+end
 
+function addItemsToPlanAndCalculateAvailableStepsHelper(plan, items)
     --add Items
     if plan.type~=actionTypes.EXECUTING then
         if items[plan.name]~=nil then
@@ -125,7 +150,7 @@ function addItemsToPlanAndCalculateAvailableSteps(plan, items)
     end
 
     for _,j in pairs(plan.preconditions) do
-        addItemsToPlanAndCalculateAvailableSteps(j,items)
+        addItemsToPlanAndCalculateAvailableStepsHelper(j,items)
     end
 
     --Update possible steps
@@ -134,7 +159,7 @@ function addItemsToPlanAndCalculateAvailableSteps(plan, items)
         maxPossible = math.min(maxPossible, math.floor(substep.itemsDone*substep.outMult/substep.necessaryForStepAbove))
     end
 
-    plan.availableActionCount = maxPossible - plan.itemsDone
+    plan.availableActionCount = maxPossible - math.floor(plan.itemsDone/plan.outMult) - plan.activeActionCount
 end
 
 
@@ -190,4 +215,16 @@ function sumActionTotalCounts(actionlist)
         sum = sum + j.totalActionCount
     end
     return sum
+end
+
+function sumPreconditionItems(step)
+    local ret = {}
+    for _,j in step.preconditions do
+        if ret[j.name]==nil then
+            ret[j.name]=j.totalActionCount*j.outMult
+        else
+            ret[j.name]=ret[j.name]+j.totalActionCount*j.outMul
+        end
+    end
+    return ret
 end

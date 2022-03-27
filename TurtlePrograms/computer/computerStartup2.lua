@@ -8,6 +8,18 @@ require("standardValues")
 require("recipes")
 require("init")
 require("mainPlanner")
+
+function getFirstMachineStep(machineSteps)
+    for _,step in machineSteps do
+        for num, machineState in  generalState.machines[step.args[1]] do
+            if machineState == -1 then
+                step.args[2] = num
+                return step
+            end
+        end
+    end
+end
+
 function getNextStep()
     local availableSteps = getAvailableSteps(generalState.currentPlan)
     local bestSteps = filterActionsByType(availableSteps,actionTypes.CRAFTING)
@@ -17,7 +29,8 @@ function getNextStep()
 
     bestSteps = filterActionsByType(availableSteps,actionTypes.MACHINE_USING)
     if not isEmpty(bestSteps) then
-        return bestSteps[1]
+        local machineStep = getFirstMachineStep(bestSteps)
+        if machineStep~=nil then return machineStep end
     end
 
     bestSteps = filterActionsByType(availableSteps,actionTypes.EXECUTING)
@@ -57,8 +70,59 @@ function getNextStep()
 
 end
 
-function executeNextStep()
+--Processes the answer of a slave turtlesMining
+--Returns: True, if the answer shouldn't
+function processAnswer()
+    turn(directions.SOUTH)
+    while current_pos.z>basespots_queue.z+1 do move_forward() end
+    local answer = textutils.unserialize(comm_getMessage())
 
+end
+
+function sendUseMachine(step)
+    local msg={}
+    msg.type = actionTypes.useMachine
+    setRecipe(step.name)
+
+    msg.itemsNeeded = itemsNeededForExecutingMaxOneStack(step)
+
+    msg.machine=step.args
+    generalState.machines[step.args[1]][step.args[2]]=-2
+    step.activeActionCount = step.activeActionCount + count
+    step.availableSteps = step.availableSteps-count
+    msg.stepNum=#generalState.activeActions+1
+    generalState.activeActions[#generalState.activeActions+1]=step
+    for i=1,16 do
+        if turtle.getItemCount(i)>0 then
+            turtle.select(i)
+            turtle.drop()
+        end
+    end
+    comm_sendMessage(textutils.serialize(msg))
+end
+
+function executeNextStep()
+    if step.type == actionTypes.CRAFTING then
+        --just craft
+        turn(directions.NORTH)
+        while current_pos.z<basespots_chestBase.z do move_forward() end
+        craft(step.name,step.availableSteps*step.outMult)
+        step.itemsDone=step.itemsDone+step.availableSteps*step.outMult
+        step.availableSteps=0
+        addItemsToPlanAndCalculateAvailableSteps(generalState.currentPlan)
+    elseif step.type == actionTypes.MACHINE_USING then
+
+        turn(directions.NORTH)
+        while current_pos.z<basespots_chestBase.z do move_forward() end
+        getItems(itemsNeededForExecutingMaxOneStack(step))
+        processAnswer()
+        sendUseMachine(step)
+    elseif step.type == actionTypes.MINING then
+    elseif step.type == actionTypes.GATHERING then
+    elseif step.type == actionTypes.REQUEUE then
+    elseif step.type == actionTypes.FARMING then
+    elseif step.type == actionTypes.EXECUTING then
+    end
 end
 
 resetLog()

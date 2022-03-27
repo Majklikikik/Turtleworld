@@ -1,4 +1,3 @@
-require("itemstacksizesAndMaxCounts")
 inventory_inv ={} --inv[itemname], contains count
 inventory_items ={} --array of itemdetails
 inventory_slot ={} --slot[itemname] tells in which slot <itemname> is

@@ -14,14 +14,13 @@ directions["WEST"] = 3
 
 home = vector.new(-460, 66,207)
 
-basespots_chestBase = vector.new(11, houseGroundLevel, 11)
-basespots_chestQueue = vector.new(11, houseGroundLevel, 7)
-basespots_computerQueue = vector.new(20, houseGroundLevel, 6)
+basespots_chestBase = vector.new(16, houseGroundLevel, 10)
+basespots_queue = vector.new(16, houseGroundLevel, 6)
+basespots_spawn = vector.new(25, houseGroundLevel, 8)
 houseGroundLevel = 65
 
 houseFrom=vector.new(0,60,0)
 houseTo=vector.new(32,70,32)
-
 
 current_dir ={}
 current_pos ={}
@@ -30,8 +29,8 @@ current_pos ={}
 function setHouseGroundLevel(level)
 	houseGroundLevel = level
 	basespots_chestBase.y=level
-	basespots_computerQueue.y = level
-	basespots_chestQueue.y = level
+	basespots_queue.y=level
+	basespots_spawn.y = level
 end
 
 function write_pos()
@@ -112,13 +111,7 @@ function move_down(force)
 		if inWay then
 			if force==false then return false end
 			if blockNameIsTurtle(block["name"]) then
-				move_forward()
 				sleep(1)
-				turn_left()
-				turn_left()
-				move_forward()
-				turn_left()
-				turn_left()
 			else
 				turtle.digDown()
 			end

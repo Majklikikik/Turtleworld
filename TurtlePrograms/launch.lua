@@ -86,8 +86,8 @@ function collectResourcesForBase()
     log("Getting Sugarcane!")
     singleTurtleFarmSugarcane(baseCosts["minecraft:sugar_cane"], false)
 
-    log("Placing remaining sugarcane in Farm")
-    placeRemainingSugarcane(3)
+    --log("Placing remaining sugarcane in Farm")
+    --placeRemainingSugarcane(3)
 end
 
 
@@ -128,107 +128,55 @@ function buildCommSpots()
 end
 
 function buildBase()
-    --buildCommSpots()
-    buildComputerAndTurtleSpawnSpot()
-end
-
-function buildComputerAndTurtleSpawnSpot()
     local items = {}
-    items["computercraft:computer_normal"] = 1
+    items["computercraft:turtle_normal"] = 1
+    items["minecraft:diamond_pickaxe"] = 1
     items["computercraft:disk"] = 1
     items["computercraft:disk_drive"] = 1
     items["minecraft:lever"]=1
+    items["minecraft:stone_bricks"]=1
     getItems(items)
-    navigate(basespots_computerQueue)
+    navigate(basespots_queue)
     turn(directions.NORTH)
+    selectItem("minecraft:stone_bricks")
+    move_forward()
+    move_up()
+    turtle.place()
+    move_back()
+    selectItem("minecraft:lever")
+    turtle.place()
+    move_down()
 
-    move_forward()
-    turn_left()
-    move_forward()
-    turn_right()
+
+    navigate(basespots_spawn)
+    turn(directions.NORTH)
+    move_back()
     selectItem("computercraft:disk_drive")
     turtle.place()
     selectItem("computercraft:disk")
     turtle.drop()
+    sleep(1)
+    copyProgramsToDisk()
 
-    if fs.exists("disk/startup") then fs.delete("disk/startup") end
-    fs.copy("/computerStartup1.lua", "disk/startup")
-    if fs.exists("disk/computerstartup") then fs.delete("disk/computerstartup") end
-    fs.copy("/computerStartup2.lua","disk/computerstartup")
-    if fs.exists("disk/recipesInitiation") then fs.delete("disk/recipesInitiation") end
-    fs.copy("/recipesInitiation.lua", "disk/recipesInitiation")
-    if fs.exists("disk/resourceCalculator") then fs.delete("disk/resourceCalculator") end
-    fs.copy("/resourceCalculator.lua", "disk/resourceCalculator")
-    if fs.exists("disk/communication") then fs.delete("disk/communication") end
-    fs.copy("/communication.lua", "disk/communication")
-    if fs.exists("disk/generalHelpingFunctions") then fs.delete("disk/generalHelpingFunctions") end
-    fs.copy("/generalHelpingFunctions.lua", "disk/generalHelpingFunctions")
-    if fs.exists("disk/itemstacksizesAndMaxCounts") then fs.delete("disk/itemstacksizesAndMaxCounts") end
-    fs.copy("/itemstacksizesAndMaxCounts.lua", "disk/itemstacksizesAndMaxCounts")
-    if fs.exists("disk/logger") then fs.delete("disk/logger") end
-    fs.copy("/logger.lua", "disk/logger")
-    if fs.exists("disk/standardValues") then fs.delete("disk/standardValues") end
-    fs.copy("/standardValues.lua", "disk/standardValues")
-    if fs.exists("disk/build") then fs.delete("disk/build") end
-    fs.copy("/build.lua", "disk/build")
-    if fs.exists("disk/crafting") then fs.delete("disk/crafting") end
-    fs.copy("/crafting.lua", "disk/crafting")
-    if fs.exists("disk/mining") then fs.delete("disk/mining") end
-    fs.copy("/mining.lua", "disk/mining")
-    if fs.exists("disk/moveInBase") then fs.delete("disk/moveInBase") end
-    fs.copy("/moveInBase.lua", "disk/moveInBase")
-    if fs.exists("disk/movement") then fs.delete("disk/movement") end
-    fs.copy("/movement.lua", "disk/movement")
-    if fs.exists("disk/recipes") then fs.delete("disk/recipes") end
-    fs.copy("/recipes.lua", "disk/recipes")
-    if fs.exists("disk/smelting") then fs.delete("disk/smelting") end
-    fs.copy("/smelting.lua", "disk/smelting")
-    if fs.exists("disk/farming") then fs.delete("disk/farming") end
-    fs.copy("/farming.lua", "disk/farming")
-    if fs.exists("disk/init") then fs.delete("disk/init") end
-    fs.copy("/init.lua", "disk/init")
-    if fs.exists("disk/computerPlanner") then fs.delete("disk/computerPlanner") end
-    fs.copy("/mainPlanner.lua","disk/mainPlanner")
-
-
-
-
-    local h=fs.open("disk/disk.michi","w")
-    h.write("I AM A DISK")
-    h.close()
-
-    turn_right()
-    move_forward()
-    turn_left()
-    selectItem("computercraft:computer_normal")
+    move_back()
+    selectItem("computercraft:turtle_normal")
     turtle.place()
+    selectItem("minecraft:diamond_pickaxe")
+    turtle.drop()
     os.sleep(0.1)
     local boss = peripheral.wrap("front")
     log("Could connect to boss:")
     log(boss ~= nil)
     boss.turnOn()
-    local state = {}
-    state.turtleCount = 1
-    state.resources = getTotalItemCounts()
-    state.resources["computercraft:turtle_normal"] = state.resources["computercraft:turtle_normal"] - 1
-    state.resources["minecraft:diamond_pickaxe"] = state.resources["minecraft:diamond_pickaxe"] - 1
-    state.stage = 1
-    sleep(3)
-    comm_sendMessage(compress(textutils.serialize(state)))
-
-
-    --[[
-    if fs.exists("disk/startup") then fs.delete("disk/startup") end
-    fs.copy("/multiTurtleStartup1.lua", "disk/startup")
-    if fs.exists("disk/turtleStartup") then fs.delete("disk/turtleStartup") end
-    fs.cope("/multiTurtleStartup2.lua","disk/turtleStartup")
-    if fs.exists("disk/processCommand") then fs.delete("disk/processCommand") end
-    fs.copy("/processCommand.lua","disk/processCommand")
-    ]]--
+    navigateCoordinates(25,houseGroundLevel,5)
+    navigateCoordinates(basespots_chestBase.x,houseGroundLevel,z)
+    navigate(basespots_chestBase)
 end
 
 
-init_turtle({11,66,11,directions["NORTH"]})
+
+
+init_turtle({16,66,10,directions["NORTH"]})
 --inventur()
 inventur()
 --initiateAndFlatten()

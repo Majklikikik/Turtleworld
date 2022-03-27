@@ -1,9 +1,3 @@
-require("movement")
-require("chestStorageSystem")
-
-
-
-
 --builds a communication Spot
 --targetPos is the lower left corner, dir is the directions
 --if dir == NORTH, then targetPos will be at the southwestern corner of the communication spot
@@ -121,9 +115,9 @@ function buildBaseFurnaces()
     log("Building Base Furnaces")
     craft("minecraft:furnace",12)
     getItemsOneType("minecraft:furnace",12)
-    navigateCoordinates(3, houseGroundLevel, 13)
+    navigateCoordinates(1, houseGroundLevel, 13)
     for i=1,12 do
-        navigateCoordinates(3, houseGroundLevel+1, 14 - i)
+        navigateCoordinates(1, houseGroundLevel+1, 14 - i)
         selectItem("minecraft:furnace")
         turn(directions["EAST"])
         turtle.place()
