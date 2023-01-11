@@ -173,7 +173,36 @@ function buildBase()
     navigate(basespots_chestBase)
 end
 
+function switchToBossMode()
+    fs.delete("startup")
+    fs.copy("computerstartup.lua", "startup")
+    os.setComputerLabel("Boss")
+    require("communication")
+    require("init")
+    require("logger")
+    require("generalHelpingFunctions")
+    log("Getting start state")
+    initComputerFile()
+    local h=fs.open("BOSS","w")
+    h.write("I AM THE BOSS")
+    log("Writer is nil: ")
+    log(h==nil)
+    h.close()
+    log("Bossfiles written.")
+    write_pos()
+end
 
+function setTestTarget()
+    local h=fs.open("bossState.michi","r")
+    local state = textutils.unserialize(h.readAll())
+    h.close()
+    local startPlan=getTestStep(1)
+    addItemsToPlanAndCalculateAvailableSteps(startPlan,state.resources)
+    state.currentPlan=startPlan
+    local h = fs.open("bossState.michi","w")
+    h.write(textutils.serialize(state))
+    h.close()
+end
 
 
 init_turtle({16,66,10,directions["NORTH"]})
@@ -192,5 +221,8 @@ addFarm("minecraft:sugar_cane")
 collectResourcesForBase()
 craftBaseStuff()
 buildBase()
+switchToBossMode()
+setTestTarget()
+os.reboot()
 
 

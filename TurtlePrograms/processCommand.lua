@@ -2,6 +2,8 @@ function processCommand(command)
     local answer = {}
     if command.type == actionTypes.MACHINE_USING then
         executeUseMachine(command)
+        answer.type=answerTypes.ACTION_DONE
+        answer.turtleName= os.getComputerLabel()
     elseif command.type == actionTypes.REQUEUE then
     elseif command.type == actionTypes.EXECUTING then
     elseif command.type == actionTypes.FARMING then

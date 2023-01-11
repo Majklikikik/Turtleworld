@@ -38,4 +38,5 @@ turn(directions.NORTH)
 while current_pos.z<basespots_queue.z do
     moveOverGround()
 end
+write_pos()
 os.reboot()

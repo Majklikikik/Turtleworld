@@ -86,8 +86,17 @@ end
 function initMultiTurtle(num, height)
 	current_pos = vector.new(basespots_spawn.x,height,basespots_spawn.z-1)
 	current_dir = directions.NORTH
+	local h = fs.open("houseGroundLevel","w")
+	h.writeLine(textutils.serialize({height}))
+	h.close()
 	setHouseGroundLevel(height)
 	os.setComputerLabel("Spartakus "..num)
+end
+
+function loadHouseGroundLevel()
+	local h = fs.open("houseGroundLevel","r")
+	setHouseGroundLevel(textutils.unserialize(h.readAll())[1])
+	h.close()
 end
 
 function initProgressFiles()
@@ -125,6 +134,7 @@ function initComputerFile()
 	for i = 1,12 do
 		state.machines[1][i]=-1
 	end
+	state.turtleStates={}
 	local h=fs.open("bossState.michi","w")
 	--log(state)
 	h.write(textutils.serialize(state))
@@ -135,6 +145,9 @@ function initBossFromFile()
 	local h=fs.open("bossState.michi","r")
 	generalState = textutils.unserialize(h.readAll())
 	h.close()
+	read_pos()
+	initiateRecipes()
+	initGatherableAndMineableResources()
 end
 
 

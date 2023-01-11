@@ -1,17 +1,8 @@
-require("recipesInitiation")
-require("resourceCalculator")
-require("communication")
-require("generalHelpingFunctions")
-require("itemstacksizesAndMaxCounts")
-require("logger")
-require("standardValues")
-require("recipes")
-require("init")
-require("mainPlanner")
+require("req")
 
 function getFirstMachineStep(machineSteps)
-    for _,step in machineSteps do
-        for num, machineState in  generalState.machines[step.args[1]] do
+    for _,step in pairs(machineSteps) do
+        for num, machineState in  pairs(generalState.machines[step.args[1]]) do
             if machineState == -1 then
                 step.args[2] = num
                 return step
@@ -67,16 +58,16 @@ function getNextStep()
     else
         return minesteps[1]
     end
-
 end
 
 --Processes the answer of a slave turtlesMining
 --Returns: True, if the answer shouldn't
 function processAnswer()
-    turn(directions.SOUTH)
-    while current_pos.z>basespots_queue.z+1 do move_forward() end
+    gotoCommunication()
     local answer = textutils.unserialize(comm_getMessage())
-
+    log("Turtle returned with Answer:")
+    log(answer)
+    return answer.turtleName
 end
 
 function sendUseMachine(step)
@@ -101,7 +92,7 @@ function sendUseMachine(step)
     comm_sendMessage(textutils.serialize(msg))
 end
 
-function executeNextStep()
+function executeNextStep(step)
     if step.type == actionTypes.CRAFTING then
         --just craft
         turn(directions.NORTH)
@@ -110,13 +101,13 @@ function executeNextStep()
         step.itemsDone=step.itemsDone+step.availableSteps*step.outMult
         step.availableSteps=0
         addItemsToPlanAndCalculateAvailableSteps(generalState.currentPlan)
-    elseif step.type == actionTypes.MACHINE_USING then
 
-        turn(directions.NORTH)
-        while current_pos.z<basespots_chestBase.z do move_forward() end
+    elseif step.type == actionTypes.MACHINE_USING then
+        gotoChests()
         getItems(itemsNeededForExecutingMaxOneStack(step))
-        processAnswer()
+        local turtleName = processAnswer()
         sendUseMachine(step)
+
     elseif step.type == actionTypes.MINING then
     elseif step.type == actionTypes.GATHERING then
     elseif step.type == actionTypes.REQUEUE then
@@ -125,15 +116,18 @@ function executeNextStep()
     end
 end
 
+
+local testing = true
 resetLog()
 initBossFromFile()
 log(generalState)
 
 local nextStep
 while true do
+    log(generalState)
     nextStep = getNextStep()
     executeNextStep(nextStep)
-    if generalState.currentPlan.totalActionCount == generalState.currentPlan.itemsDone then
+    if (not testing) and generalState.currentPlan.totalActionCount == generalState.currentPlan.itemsDone then
         generalState.progress=generalState.progress + 1
         generalState.currentPlan=getStep(generalState.progress)
         addItemsToPlanAndCalculateAvailableSteps(generalState.currentPlan, getTotalItemCounts())

@@ -22,6 +22,7 @@ actionTypes["FARMING"] = "farming"--4
 actionTypes["EXECUTING"] = "executing"--5 --executing a function, for example a build - function
 actionTypes["REQUEUE"] = "requeueing" -- 6
 
+
 function requeueStep()
     local ret = {}
     ret.type= actionTypes.REQUEUE
@@ -34,11 +35,32 @@ function requeueStep()
     return ret
 end
 
+function getTestStep(testCase)
+    if testCase == 1 then
+        local plan = {}
+        plan.type = actionTypes["MACHINE_USING"]
+        plan.args = {1}
+        plan.totalActionCount = 10
+        plan.activeActionCount = 0
+        local itemsNeeded={}
+        itemsNeeded["minecraft:coal"]=1
+        itemsNeeded["emendatusenigmatica:iron_chunk"]=8
+        plan.itemsDone = 0
+        plan.outMult=1
+        plan.preconditions=generateObtainmentPlanForList(itemsNeeded, plan.totalActionCount)
+        plan.name="Test 1"
+        return plan
+    end
+    log("Error, testCase not implementes: ")
+    log(testCase)
+    error("Testcase not implemented")
+end
+
 function getStep(stepnum)
     if stepnum == 1 then
         local plan = {}
         plan.type = actionTypes["EXECUTING"]
-        plan.args = "buildTurtle"
+        plan.args = {"buildTurtle"}
         plan.totalActionCount = 10
         plan.activeActionCount = 0
         local itemsNeeded={}
@@ -227,4 +249,14 @@ function sumPreconditionItems(step)
         end
     end
     return ret
+end
+
+function gotoChests()
+    turn(directions.NORTH)
+    while current_pos.z<basespots_chestBase.z do move_forward() end
+end
+
+function gotoCommunication()
+    turn(directions.SOUTH)
+    while current_pos.z>basespots_queue.z+2 do move_forward() end
 end
