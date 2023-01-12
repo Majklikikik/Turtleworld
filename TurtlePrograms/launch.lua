@@ -220,6 +220,7 @@ addFarm("minecraft:sugar_cane")
 
 collectResourcesForBase()
 craftBaseStuff()
+
 buildBase()
 switchToBossMode()
 setTestTarget()

@@ -1,3 +1,8 @@
+--[[Useful Functions:
+
+]]--
+
+
 --[[
 A Step is modelled by a List cointaining:
 1) totalCount: how many times it should be done totally (necessary for crafting, smelting, machine using)
@@ -12,6 +17,8 @@ where preconditions[i] is itself an array, containing the # multiplicity, how ma
 9) availableActionCount
 10) activeActionCount
 ]]--
+
+
 
 actionTypes = {}
 actionTypes["CRAFTING"] = "crafting"--0
@@ -80,6 +87,8 @@ end
 function itemsNeededForExecutingMaxOneStack(step)
     local preSteps = generateMachineUsingPresteps(step.args[1],1)
     local itemsNeeded= {}
+    log("Current Step:")
+    log(step)
     for _,j in pairs(preSteps) do
         if itemsNeeded[j.name]==nil then
             itemsNeeded[j.name]=j.totalActionCount*j.outMult

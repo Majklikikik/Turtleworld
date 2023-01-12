@@ -1,3 +1,11 @@
+--[[Useful Functions:
+getFirstMachineStep(machineSteps) : Marks the first machine which the steps needs as "in Use", accordingly modifies the steps
+getNextStep(): Returns the step, which should be done next
+processAnswer(): Processes the answer of the slave-turtle
+sendUseMachine(step): Sends the slave to use a machine
+executeNextStep(step): executes the step in the parameter
+]]--
+
 require("req")
 
 function getFirstMachineStep(machineSteps)
@@ -12,6 +20,13 @@ function getFirstMachineStep(machineSteps)
 end
 
 function getNextStep()
+    --[[
+     Priority:
+     1) Crafting, as it can be done quickly and instantly
+     2) Using machines, as it is done quickly by the turtle, but may take some time until the machine is done
+     3) Executing: Building any special stuff or so
+     4) Farming, Gathering or Mining, here trying to optimize the ratio so that not all turtles are doing the same (if different activities are neeeded)
+     ]]--
     local availableSteps = getAvailableSteps(generalState.currentPlan)
     local bestSteps = filterActionsByType(availableSteps,actionTypes.CRAFTING)
     if not isEmpty(bestSteps) then

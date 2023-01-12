@@ -1,3 +1,7 @@
+--[[Useful Functions:
+
+]]--
+
 function initiateRecipes()
     initiateCraftingRecipes()
     initiateSmeltingRecipes()

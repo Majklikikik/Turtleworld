@@ -1,5 +1,4 @@
 function smeltSingleTurtleMaxOneStack(itemname, itemcount)
-
     if itemcount>64 then
         log("Error, smeltSingleTurtleMaxOneStack called with more than one stack! That should not have happened...")
         error("Too many items")

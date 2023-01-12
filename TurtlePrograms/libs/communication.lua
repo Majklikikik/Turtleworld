@@ -1,3 +1,4 @@
+
 charToInts = {}
 
 intsToChar={}

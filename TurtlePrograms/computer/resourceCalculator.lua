@@ -1,3 +1,7 @@
+--[[Useful Functions:
+
+]]--
+
 resourcesMineable = {}      -- can be collected from surface
 resourcesGatherable = {}    -- can be mined
 resourcesFarmable = {}      -- farm built

@@ -80,7 +80,7 @@ function mine(chunkNum, fromTunnel, maxTunnelCount, itemsToMine, stackCountsToKe
         --means the Chunk got completely mined
         if getMiningTunnelStartPosition(chunkNum, i)==nil then return nil end
         mineTunnel(chunkNum, i)
-        dropAbundantItemsNoChest(2)
+        dropAbundantItemsNoChest(stackCountsToKeep)
         if itemsToMine~=nil and hasAll(itemsToMine) then
             return i
         end
