@@ -57,6 +57,10 @@ function setRecipe(id,c)
 	recipe_outputMult = recipe_recipes[id]["outputMult"]
 	recipe_inputMult = recipe_recipes[id]["inputMult"]
 
+	log("Machine is")
+	log(recipe_machine)
+	log("MaxCount:")
+	log(recipe_maxCount)
 	--set the values depending only on the machine
 	if recipe_machine == 0 then
 		recipe_inputMult=1

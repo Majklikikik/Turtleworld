@@ -15,7 +15,7 @@ where preconditions[i] is itself an array, containing the # multiplicity, how ma
 7) name
 8) OutMult:
 9) availableActionCount
-10) activeActionCount
+10) activeActionCount: How many times the action is currently active
 ]]--
 
 
@@ -45,7 +45,7 @@ end
 function getTestStep(testCase)
     if testCase == 1 then
         local plan = {}
-        plan.type = actionTypes["MACHINE_USING"]
+        plan.type = actionTypes.MACHINE_USING
         plan.args = {1}
         plan.totalActionCount = 10
         plan.activeActionCount = 0
@@ -55,7 +55,7 @@ function getTestStep(testCase)
         plan.itemsDone = 0
         plan.outMult=1
         plan.preconditions=generateObtainmentPlanForList(itemsNeeded, plan.totalActionCount)
-        plan.name="Test 1"
+        plan.name="minecraft:iron_ingot"
         return plan
     end
     log("Error, testCase not implementes: ")
@@ -98,8 +98,14 @@ function itemsNeededForExecutingMaxOneStack(step)
     end
     setRecipe(step.name)
     itemsNeeded=addValues(itemsNeeded, recipes_itemsNeeded)
-
-    local count = math.min(recipe_maxCount/recipe_outputMult, step.availableSteps)
+    log(recipes_maxCount)
+    log(recipe_outputMult)
+    log(step.availableActionCount)
+    local count = math.min(recipe_maxCount/recipe_outputMult, step.availableActionCount)
+    log("Items needed for Execcuting max one stack:")
+    log(multiplicate(itemsNeeded, count))
+    log(itemsNeeded)
+    log(count)
     return multiplicate(itemsNeeded,count)
 end
 

@@ -87,6 +87,7 @@ function multiplicate(table, multiplicator)
     for i,j in pairs(table) do
         ret[i]=j*multiplicator
     end
+    return ret
 end
 
 function addValues(table1, table2)

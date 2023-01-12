@@ -75,8 +75,7 @@ function getNextStep()
     end
 end
 
---Processes the answer of a slave turtlesMining
---Returns: True, if the answer shouldn't
+--Processes the answer of a slave turtles
 function processAnswer()
     gotoCommunication()
     local answer = textutils.unserialize(comm_getMessage())
@@ -95,7 +94,7 @@ function sendUseMachine(step)
     msg.machine=step.args
     generalState.machines[step.args[1]][step.args[2]]=-2
     step.activeActionCount = step.activeActionCount + count
-    step.availableSteps = step.availableSteps-count
+    step.availableActionCount = step.availableActionCount - count
     msg.stepNum=#generalState.activeActions+1
     generalState.activeActions[#generalState.activeActions+1]=step
     for i=1,16 do
@@ -116,11 +115,14 @@ function executeNextStep(step)
         step.itemsDone=step.itemsDone+step.availableSteps*step.outMult
         step.availableSteps=0
         addItemsToPlanAndCalculateAvailableSteps(generalState.currentPlan)
+        return
+    end
 
-    elseif step.type == actionTypes.MACHINE_USING then
+    local turtleName = processAnswer()
+    if step.type == actionTypes.MACHINE_USING then
         gotoChests()
+        log("Getting Items for Machine Using.")
         getItems(itemsNeededForExecutingMaxOneStack(step))
-        local turtleName = processAnswer()
         sendUseMachine(step)
 
     elseif step.type == actionTypes.MINING then
@@ -136,6 +138,9 @@ local testing = true
 resetLog()
 initBossFromFile()
 log(generalState)
+
+--JUST FOR DEBUGGING! REMOVE LATER
+inventur()
 
 local nextStep
 while true do

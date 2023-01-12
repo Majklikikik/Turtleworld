@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public class copier {
@@ -18,8 +19,10 @@ public class copier {
         tf=new File("C:\\Users\\micha\\AppData\\Local\\.ftba\\instances\\5899d8fc-0033-442b-8f38-a507149f6083\\saves\\Turtleworld\\computercraft\\computer\\19");
         File inAll;
         File inTest;
+        String [] filesToKeep={"startup","bossState.michi", "pos.txt"};
         if (tf.exists()){
             for (File f:tf.listFiles()){
+                if (Arrays.asList(filesToKeep).contains(f.getName())) continue;
                 String [] nameparts=f.getName().split("[.]");
                 String endung=nameparts[nameparts.length-1];
                 System.out.println("Removing "+f.getPath());
