@@ -228,7 +228,7 @@ function initiateChests()
     craft("minecraft:startPlanks", 8*chestCount) -- Fails if more than 6 logs are in inventory
     craft("minecraft:startChest", chestCount)
     turn(directions["NORTH"])
-    for _ = 1, chestCount do
+    for i = 1, chestCount do
         placeChest()
     end
 

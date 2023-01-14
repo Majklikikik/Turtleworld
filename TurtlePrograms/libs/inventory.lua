@@ -22,7 +22,7 @@ function countInventory()
 	resetInv()
 	for i=1,16 do
 		local det=turtle.getItemDetail(i)
-		inventory_items[i]=turtle.getItemDetail(i)
+		inventory_items[i]=det
 		if det~=nil then
 			--log(det)
 			if inventory_inv[det.name]==nil
@@ -92,7 +92,7 @@ end
 --1) Move all Items to the last slots, keep the first slots empty
 --2) Merge Stacks if possible
 function countAndSortInventory()
-	countInventory(false)
+	countInventory()
 	mergeStacks()
 
 	--items in the last slots, first slots empty

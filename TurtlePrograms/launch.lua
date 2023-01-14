@@ -41,7 +41,7 @@ function makeSugarCaneFarm()
     local sugarCaneFarmCosts = subtractValuesPositive(resourceCostsList(standardvalues_sugarCaneFarmAndFurnaces()), getTotalItemCounts())
     log("Collecting stuff for Sugarcane Farm and Furnaces. Going to Mine: ")
     log(mineableResources(sugarCaneFarmCosts))
-    singleTurtleMineResources(mineableResources(sugarCaneFarmCosts))
+    singleTurtleMineResources(mineableResources(sugarCaneFarmCosts),60)
 
     log("Gathering stuff for Sugarcane Farm and Furnaces. Going to Gather: ")
     log(gatherableResources(sugarCaneFarmCosts))
@@ -205,7 +205,8 @@ function setTestTarget()
 end
 
 
-init_turtle({16,66,10,directions["NORTH"]})
+--init_turtle({16,66,10,directions["NORTH"]})
+init_turtle({11,64,11,directions["NORTH"]})
 --inventur()
 inventur()
 --initiateAndFlatten()
@@ -214,7 +215,7 @@ inventur()
 --increaseChestCountTo(20)
 
 
---makeSugarCaneFarm()
+makeSugarCaneFarm()
 addFarm("minecraft:sugar_cane")
 
 

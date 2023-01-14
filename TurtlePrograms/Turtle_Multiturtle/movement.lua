@@ -14,9 +14,9 @@ directions["WEST"] = 3
 
 home = vector.new(-460, 66,207)
 
-basespots_chestBase = vector.new(16, houseGroundLevel, 10)
-basespots_queue = vector.new(16, houseGroundLevel, 6)
-basespots_spawn = vector.new(25, houseGroundLevel, 8)
+basespots_chestBase = vector.new(11, houseGroundLevel, 11)
+basespots_queue = vector.new(11, houseGroundLevel, 7)
+basespots_spawn = vector.new(20, houseGroundLevel, 9)
 houseGroundLevel = 65
 
 houseFrom=vector.new(0,60,0)
@@ -251,7 +251,7 @@ end
 -- 1) Goes up instead of digging
 -- 2) At the target x,z, goes to the ground y level
 function navigateOnGround(position)
-	log("Moving on ground towards x: "..position.x.." z: "..position.z)
+	--log("Moving on ground towards x: "..position.x.." z: "..position.z)
 	local offset = position - current_pos  --calculates the offset value
 
 
@@ -337,7 +337,7 @@ end
 -- first moves in y, then z, then x
 -- if something is in the way, it digs through!
 function navigate(position)
-	log("going towards x: "..position.x.." y: "..position.y.." z: "..position.z)
+	--log("going towards x: "..position.x.." y: "..position.y.." z: "..position.z)
 	--if the target is on the east, but on odd z coordinate, go to a point one block northern or southern and then to the target
 	if (position.x-current_pos.x > 0 and position.z%2==1) or (position.x-current_pos.x < 0 and position.z%2==0) then
 		if position.x%2==0 then

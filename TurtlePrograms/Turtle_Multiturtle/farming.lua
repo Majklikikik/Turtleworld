@@ -78,7 +78,7 @@ function lookInCurrentChunkForWood(woodCount, collectingSaplings, mustBeSameTree
     turn(directions["NORTH"])
     checkTree(collectingSaplings)
     for i=1,8 do
-        for i=1,15 do
+        for j=1,15 do
             if collectingSaplings then turtle.suck() end
             if checkTreeAndMove(collectingSaplings) then
                 if countLogs(mustBeSameTreeType) >= woodCount then return true end
@@ -90,7 +90,7 @@ function lookInCurrentChunkForWood(woodCount, collectingSaplings, mustBeSameTree
             if countLogs(mustBeSameTreeType) >= woodCount then return true end
         end
         turn_right()
-        for i=1,15 do
+        for j=1,15 do
             if collectingSaplings then turtle.suck() end
             if checkTreeAndMove(collectingSaplings) then
                 if countLogs(mustBeSameTreeType) >= woodCount then return true end
@@ -149,8 +149,7 @@ end
 function checkTreeAndMove(collectingSaplings)
     while move_down(false) do end
     moveOverGround()
-    checkTree(collectingSaplings)
-    return gotSomething
+    return checkTree(collectingSaplings)
 end
 
 function checkTree(collectingSaplings)
@@ -179,6 +178,7 @@ function checkTree(collectingSaplings)
         end
         a,b=turtle.inspectDown()
     end
+    return gotSomething
 end
 
 function isTreePart(block)

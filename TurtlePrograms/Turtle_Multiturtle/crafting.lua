@@ -149,9 +149,22 @@ end
 
 function logHasItem(recipeID)
     countInventory()
+    if recipeID == "minecraft:startPlanks" then
+        for _, plank in pairs(planks) do
+            for _, item in pairs(inventory_items) do
+                if item == plank then
+                    log("Crafted and got "..inventory_inv[item].." of "..item)
+                    return
+                end 
+            end
+        end
+        return
+    end
+    if recipeID == "minecraft:startChest" then
+        return
+    end
     if inventory_inv[recipeID]==nil then
         log("ERROR: Crafted, but got none of "..recipeID)
-        error("Crafted, but got none of item")
     else
         log("Crafted and got "..inventory_inv[recipeID].." of "..recipeID)
     end
@@ -165,7 +178,7 @@ function craftTurtle(recipeID, count)
     end
     itemsWanted["minecraft:diamond_pickaxe"]=1
     itemsWanted["computercraft:turtle_normal"]= 1
-    getmissing()
+    getmissingItems()
     storeRest()
 
     setRecipe("computercraft:turtle_mining",1)
@@ -182,7 +195,7 @@ function craftTurtle(recipeID, count)
     end
 
     itemsWanted["minecraft:crafting_table"]=1
-    getmissing()
+    getmissingItems()
     setRecipe("computercraft:turtle_mining_crafty",1)
     arrangeInventoryToRecipe()
     turtle.craft()
