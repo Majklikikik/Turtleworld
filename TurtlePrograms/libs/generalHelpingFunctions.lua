@@ -211,3 +211,41 @@ function uncompress(str)
     str2=string.gsub(str2, "ee:", "emendatusenigmatica:")
     return str2
 end
+
+
+
+function compressMessage(msg)
+    local ret = {}
+    for i,_ in pairs(msg) do
+        if (i=="turtleName") then
+            ret["tn"] = string.gsub(msg[i],"Spartakus","S")
+        elseif (i=="itemsNeeded") then ret["iN"]=msg[i]
+        elseif (i=="machine") then ret["mn"]=msg[i]
+        elseif (i=="stepNum") then ret["sN"]=msg[i]
+        elseif (i=="type") then
+            if msg[i]==answerTypes.NOTHING then ret["t"]="n"
+            elseif msg[i]==answerTypes.ACTION_DONE then ret["t"]="d"
+            else ret["t"]=msg[i] end
+        else ret[i]=msg[i]
+        end
+    end
+    return ret
+end
+
+function uncompressMessage(msg)
+    local ret = {}
+    for i,_ in pairs(msg) do
+        if (i=="tn") then
+            ret["turtleName"] = string.gsub(msg[i],"S","Spartakus")
+        elseif (i=="iN") then ret["itemsNeeded"]=msg[i]
+        elseif (i=="mn") then ret["machine"]=msg[i]
+        elseif (i=="sN") then ret["stepNum"]=msg[i]
+        elseif (i=="t") then
+            if msg[i]=="n" then ret["type"]=answerTypes.NOTHING
+            elseif msg[i]=="d" then ret["type"]=answerTypes.ACTION_DONE
+            else ret["type"]=msg[i] end
+        else ret[i]=msg[i]
+        end
+    end
+    return ret
+end
