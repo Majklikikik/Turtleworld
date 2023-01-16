@@ -10,4 +10,5 @@ require("mining")
 require("build")
 require("smelting")
 require("communication")
+require("processCommand")
 

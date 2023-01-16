@@ -129,7 +129,7 @@ function comm_getMessage ()
 	local i = 0
 	while (char1~=15 or char2~=15) do
 		str=str..intsToChar[char1][char2]
-		term.write(".")
+		term.write(intsToChar[char1][char2])
 		char1= comm_read()
 		char2= comm_read()
 		i = i+ 1

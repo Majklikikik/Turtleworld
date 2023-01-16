@@ -28,30 +28,30 @@ function executeUseMachine(command)
 end
 
 
-msg={}
-msg.type = actionTypes.useMachine
-setRecipe(step.name)
-
-
-preSteps = generateMachineUsingPresteps(step.args[1],1)
-local itemsNeeded= {}
-for _,j in pairs(preSteps) do
-    if itemsNeeded[j.name]==nil then
-        itemsNeeded[j.name]=j.totalActionCount*j.outMult
-    else
-        itemsNeeded[j.name]=itemsNeeded[j.name]+j.totalActionCount*j.outMult
-    end
-end
-setRecipe(step.name)
-itemsNeeded=addValues(itemsNeeded, recipes_itemsNeeded)
-
-local count = math.min(recipe_maxCount/recipe_outputMult, step.availableSteps)
-
-
-msg.itemsNeeded=multiplicate(itemsNeeded,count)
-msg.machine=step.args
-generalState.machines[step.args[1]][step.args[2]]=-2
-step.activeActionCount = step.activeActionCount + count
-step.availableSteps = step.availableSteps-count
-msg.stepNum=#generalState.activeActions+1
-generalState.activeActions[#generalState.activeActions+1]=step
+--msg={}
+--msg.type = actionTypes.useMachine
+--setRecipe(step.name)
+--
+--
+--preSteps = generateMachineUsingPresteps(step.args[1],1)
+--local itemsNeeded= {}
+--for _,j in pairs(preSteps) do
+--    if itemsNeeded[j.name]==nil then
+--        itemsNeeded[j.name]=j.totalActionCount*j.outMult
+--    else
+--        itemsNeeded[j.name]=itemsNeeded[j.name]+j.totalActionCount*j.outMult
+--    end
+--end
+--setRecipe(step.name)
+--itemsNeeded=addValues(itemsNeeded, recipes_itemsNeeded)
+--
+--local count = math.min(recipe_maxCount/recipe_outputMult, step.availableSteps)
+--
+--
+--msg.itemsNeeded=multiplicate(itemsNeeded,count)
+--msg.machine=step.args
+--generalState.machines[step.args[1]][step.args[2]]=-2
+--step.activeActionCount = step.activeActionCount + count
+--step.availableSteps = step.availableSteps-count
+--msg.stepNum=#generalState.activeActions+1
+--generalState.activeActions[#generalState.activeActions+1]=step
