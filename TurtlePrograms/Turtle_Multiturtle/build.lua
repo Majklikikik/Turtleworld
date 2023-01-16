@@ -389,10 +389,10 @@ end
 
 -- Requirement: Chest in Inventory
 -- Reward: Storage System yay
-function placeChest()    
-	for i, _ in pairs(itemsWanted) do
-		itemsWanted[i] = nil
-	end
+function placeChest()
+    for i, _ in pairs(itemsWanted) do
+        itemsWanted[i] = nil
+    end
     itemsWanted["minecraft:chest"] = 1
     getmissingItems()
     build_chest()

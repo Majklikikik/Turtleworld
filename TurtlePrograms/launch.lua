@@ -5,48 +5,49 @@ require("req")
 function initiateAndFlatten()
     init_turtle()
     --clear area for Chests
-    flattenRectangle(10, 10, 12, 12,houseGroundLevel,10)
+    flattenRectangle(10, 10, 12, 12, houseGroundLevel, 10)
     initiateChests()
 
     --clean the two house chunks from trees
-    lookInChunkForWood(1,nil,true)
-    lookInChunkForWood(2,nil,true)
-    lookInChunkForWood(3, nil,true)
+    lookInChunkForWood(1, nil, true)
+    lookInChunkForWood(2, nil, true)
+    lookInChunkForWood(3, nil, true)
     goFromOutsideToChestPoint()
     dropAbundantItems()
     dropInventory()
 
 
     --flatten them
-    flattenRectangle(10, 13, 15, 15,nil,2)
-    flattenRectangle(13, 10, 15, 12,nil,2)
-    flattenRectangle(0,10,9,15,nil,2)
-    flattenRectangle(0,0,15,9,nil,2)
-    flattenRectangle(16,0,31,15,nil,2)
+    flattenRectangle(10, 13, 15, 15, nil, 2)
+    flattenRectangle(13, 10, 15, 12, nil, 2)
+    flattenRectangle(0, 10, 9, 15, nil, 2)
+    flattenRectangle(0, 0, 15, 9, nil, 2)
+    flattenRectangle(16, 0, 31, 15, nil, 2)
     goFromOutsideToChestPoint()
     dropAbundantItems()
     dropInventory()
 end
 
 function increaseChestCountTo(targetCount)
-    local chestCosts = resourceCosts("minecraft:chest",targetCount-chests["count"], getTotalItemCounts())
+    local chestCosts = resourceCosts("minecraft:chest", targetCount - chests["count"], getTotalItemCounts())
     log("Farming Wood to get a total of 20 Chests!")
     log(chestCosts)
     singleTurtleFarmWood(chestCosts[woodsName])
-    buildBaseChests(targetCount-chests["count"])
+    buildBaseChests(targetCount - chests["count"])
 end
 
 function makeSugarCaneFarm()
     --make Sugarcane Farm
-    local sugarCaneFarmCosts = subtractValuesPositive(resourceCostsList(standardvalues_sugarCaneFarmAndFurnaces()), getTotalItemCounts())
+    local sugarCaneFarmCosts = subtractValuesPositive(resourceCostsList(standardvalues_sugarCaneFarmAndFurnaces()),
+        getTotalItemCounts())
     log("Collecting stuff for Sugarcane Farm and Furnaces. Going to Mine: ")
     log(mineableResources(sugarCaneFarmCosts))
-    singleTurtleMineResources(mineableResources(sugarCaneFarmCosts),60)
+    singleTurtleMineResources(mineableResources(sugarCaneFarmCosts), 60)
 
     log("Gathering stuff for Sugarcane Farm and Furnaces. Going to Gather: ")
     log(gatherableResources(sugarCaneFarmCosts))
-    local getAllSugarcane={}
-    getAllSugarcane["minecraft:sugar_cane"]=true
+    local getAllSugarcane = {}
+    getAllSugarcane["minecraft:sugar_cane"] = true
     singleTurtleGatherResource(gatherableResources(sugarCaneFarmCosts), getAllSugarcane)
 
     log("Building Furnaces!")
@@ -90,18 +91,15 @@ function collectResourcesForBase()
     --placeRemainingSugarcane(3)
 end
 
-
 function craftBaseStuff()
-    local plan = generateCraftingPlanForItemList(standardvalues_baseBuildingItems(),getTotalItemCounts())[1]
+    local plan = generateCraftingPlanForItemList(standardvalues_baseBuildingItems(), getTotalItemCounts())[1]
     log("The Crafting Plan is: ")
     log(plan)
-    log("Executing it! Plan has "..#plan.." steps.")
-    for i=#plan, 1, -1 do
+    log("Executing it! Plan has " .. #plan .. " steps.")
+    for i = #plan, 1, -1 do
         executePlanStepSingleTurtle(plan[i])
     end
 end
-
-
 
 function buildCommSpots()
     local items = {}
@@ -112,8 +110,8 @@ function buildCommSpots()
     navigate(basespots_computerQueue)
     turn(directions.NORTH)
     move_forward()
-    local commSpot1= vector.new(basespots_computerQueue.x-2,basespots_computerQueue.y,basespots_computerQueue.z+1)
-    local commSpot2 = vector.new(basespots_chestQueue.x-2,basespots_chestQueue.y, basespots_chestQueue.z+1)
+    local commSpot1 = vector.new(basespots_computerQueue.x - 2, basespots_computerQueue.y, basespots_computerQueue.z + 1)
+    local commSpot2 = vector.new(basespots_chestQueue.x - 2, basespots_chestQueue.y, basespots_chestQueue.z + 1)
     log("Cleaning Area")
     cleanCommunicationSpot(commSpot1, directions.NORTH)
     cleanCommunicationSpot(commSpot2, directions.NORTH)
@@ -133,8 +131,8 @@ function buildBase()
     items["minecraft:diamond_pickaxe"] = 1
     items["computercraft:disk"] = 1
     items["computercraft:disk_drive"] = 1
-    items["minecraft:lever"]=1
-    items["minecraft:stone_bricks"]=1
+    items["minecraft:lever"] = 1
+    items["minecraft:stone_bricks"] = 1
     getItems(items)
     navigate(basespots_queue)
     turn(directions.NORTH)
@@ -168,8 +166,8 @@ function buildBase()
     log("Could connect to boss:")
     log(boss ~= nil)
     boss.turnOn()
-    navigateCoordinates(25,houseGroundLevel,5)
-    navigateCoordinates(basespots_chestBase.x,houseGroundLevel,z)
+    navigateCoordinates(25, houseGroundLevel, 5)
+    navigateCoordinates(basespots_chestBase.x, houseGroundLevel, z)
     navigate(basespots_chestBase)
 end
 
@@ -183,30 +181,29 @@ function switchToBossMode()
     require("generalHelpingFunctions")
     log("Getting start state")
     initComputerFile()
-    local h=fs.open("BOSS","w")
+    local h = fs.open("BOSS", "w")
     h.write("I AM THE BOSS")
     log("Writer is nil: ")
-    log(h==nil)
+    log(h == nil)
     h.close()
     log("Bossfiles written.")
     write_pos()
 end
 
 function setTestTarget()
-    local h=fs.open("bossState.michi","r")
+    local h = fs.open("bossState.michi", "r")
     local state = textutils.unserialize(h.readAll())
     h.close()
-    local startPlan=getTestStep(1)
-    addItemsToPlanAndCalculateAvailableSteps(startPlan,state.resources)
-    state.currentPlan=startPlan
-    local h = fs.open("bossState.michi","w")
+    local startPlan = getTestStep(1)
+    addItemsToPlanAndCalculateAvailableSteps(startPlan, state.resources)
+    state.currentPlan = startPlan
+    local h = fs.open("bossState.michi", "w")
     h.write(textutils.serialize(state))
     h.close()
 end
 
-
 --init_turtle({16,66,10,directions["NORTH"]})
-init_turtle({11,64,11,directions["NORTH"]})
+init_turtle({ 11, 64, 11, directions["NORTH"] })
 --inventur()
 inventur()
 --initiateAndFlatten()
@@ -226,5 +223,3 @@ buildBase()
 switchToBossMode()
 setTestTarget()
 os.reboot()
-
-

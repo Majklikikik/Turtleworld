@@ -6,7 +6,8 @@ import java.nio.file.StandardCopyOption;
 
 public class copier {
     public static void main(String[] args) {
-        // String pathname = "C:\\Users\\micha\\AppData\\Local\\.ftba\\instances\\5899d8fc-0033-442b-8f38-a507149f6083\\saves\\Turtleworld\\computercraft\\computer\\19";
+        // String pathname =
+        // "C:\\Users\\micha\\AppData\\Local\\.ftba\\instances\\5899d8fc-0033-442b-8f38-a507149f6083\\saves\\Turtleworld\\computercraft\\computer\\19";
         String pathname = "I:\\Games\\Minecraft\\Instances\\167b0fe2-0022-4b7b-ad26-ef6e16e05a8e\\saves\\Turtles\\computercraft\\computer\\0";
         String[] filesToKeep = { "startup", "bossState.michi", "pos.txt" };
         removeOldFiles(pathname, filesToKeep);
@@ -19,7 +20,7 @@ public class copier {
             for (File f : tf.listFiles()) {
                 boolean skip = false;
                 for (String string : filesToKeep) {
-                    if (f.getName().equalsIgnoreCase(string)){
+                    if (f.getName().equalsIgnoreCase(string)) {
                         skip = true;
                     }
                 }
@@ -43,13 +44,13 @@ public class copier {
         File folder = new File("TurtlePrograms");
         for (File f : folder.listFiles()) {
             boolean skip = false;
-                for (String string : filesToKeep) {
-                    if (f.getName().equalsIgnoreCase(string)){
-                        skip = true;
-                    }
+            for (String string : filesToKeep) {
+                if (f.getName().equalsIgnoreCase(string)) {
+                    skip = true;
                 }
-                if (skip)
-                    continue;
+            }
+            if (skip)
+                continue;
             try {
                 if (f.isDirectory()) {
                     for (File g : f.listFiles()) {

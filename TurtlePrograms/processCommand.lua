@@ -2,8 +2,8 @@ function processCommand(command)
     local answer = {}
     if command.type == actionTypes.MACHINE_USING then
         executeUseMachine(command)
-        answer.type=answerTypes.ACTION_DONE
-        answer.turtleName= os.getComputerLabel()
+        answer.type = answerTypes.ACTION_DONE
+        answer.turtleName = os.getComputerLabel()
     elseif command.type == actionTypes.REQUEUE then
     elseif command.type == actionTypes.EXECUTING then
     elseif command.type == actionTypes.FARMING then
@@ -18,7 +18,7 @@ function processCommand(command)
 end
 
 function executeUseMachine(command)
-    if command.args[1]==0 then
+    if command.args[1] == 0 then
         smeltMultiTurtle(furnaceNum)
     else
         log("Unknown Machine: ")
@@ -26,7 +26,6 @@ function executeUseMachine(command)
         log(command)
     end
 end
-
 
 --msg={}
 --msg.type = actionTypes.useMachine

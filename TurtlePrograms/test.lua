@@ -53,7 +53,8 @@ function getNextStep()
             return minesteps[1]
         end
     end
-    if generalState.turtlesGathering / (generalState.turtlesGathering + generalState.turtlesMining) < sum1 / (sum1 + sum2
+    if generalState.turtlesGathering / (generalState.turtlesGathering + generalState.turtlesMining) <
+        sum1 / (sum1 + sum2
         ) or sum2 == 0 then
         return gathersteps[1]
     else
