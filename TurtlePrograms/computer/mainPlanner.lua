@@ -19,17 +19,6 @@ where preconditions[i] is itself an array, containing the # multiplicity, how ma
 ]]--
 
 
-
-actionTypes = {}
-actionTypes["CRAFTING"] = "crafting"--0
-actionTypes["MACHINE_USING"] = "machine"--1
-actionTypes["MINING"] = "mining"--2
-actionTypes["GATHERING"] = "gathering"--3
-actionTypes["FARMING"] = "farming"--4
-actionTypes["EXECUTING"] = "executing"--5 --executing a function, for example a build - function
-actionTypes["REQUEUE"] = "requeueing" -- 6
-
-
 function requeueStep()
     local ret = {}
     ret.type= actionTypes.REQUEUE
@@ -273,5 +262,5 @@ end
 
 function gotoCommunication()
     turn(directions.SOUTH)
-    while current_pos.z>basespots_queue.z+2 do move_forward() end
+    while current_pos.z>basespots_queue.z+1 do move_forward() end
 end

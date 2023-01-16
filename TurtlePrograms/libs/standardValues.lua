@@ -7,6 +7,7 @@ function standardvalues_baseBuildingItems()
     ret["minecraft:diamond_pickaxe"] = ret["computercraft:turtle_normal"]
     ret["minecraft:stone_bricks"]=1
     ret["minecraft:lever"] = 1
+    ret["minecraft:coal"] = 8
     return ret
 end
 

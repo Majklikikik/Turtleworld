@@ -1,4 +1,14 @@
 require("logger")
+
+actionTypes = {}
+actionTypes["CRAFTING"] = "crafting"--0
+actionTypes["MACHINE_USING"] = "machine"--1
+actionTypes["MINING"] = "mining"--2
+actionTypes["GATHERING"] = "gathering"--3
+actionTypes["FARMING"] = "farming"--4
+actionTypes["EXECUTING"] = "executing"--5 --executing a function, for example a build - function
+actionTypes["REQUEUE"] = "requeueing" -- 6
+
 function tableSize(table)
     local i=0
     for t in pairs(table) do

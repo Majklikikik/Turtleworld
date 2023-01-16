@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 
 public class copier {
     public static void main(String[] args) {
@@ -11,14 +10,20 @@ public class copier {
         String pathname = "I:\\Games\\Minecraft\\Instances\\167b0fe2-0022-4b7b-ad26-ef6e16e05a8e\\saves\\Turtles\\computercraft\\computer\\0";
         String[] filesToKeep = { "startup", "bossState.michi", "pos.txt" };
         removeOldFiles(pathname, filesToKeep);
-        copyNewFiles(pathname);
+        copyNewFiles(pathname, filesToKeep);
     }
 
     public static void removeOldFiles(String pathname, String[] filesToKeep) {
         File tf = new File(pathname);
         if (tf.exists()) {
             for (File f : tf.listFiles()) {
-                if (Arrays.asList(filesToKeep).contains(f.getName()))
+                boolean skip = false;
+                for (String string : filesToKeep) {
+                    if (f.getName().equalsIgnoreCase(string)){
+                        skip = true;
+                    }
+                }
+                if (skip)
                     continue;
                 // String[] nameparts = f.getName().split("[.]");
                 // String endung = nameparts[nameparts.length - 1];
@@ -29,7 +34,7 @@ public class copier {
 
     }
 
-    public static void copyNewFiles(String pathname) {
+    public static void copyNewFiles(String pathname, String[] filesToKeep) {
         File tf = new File(pathname);
         if (!tf.exists()) {
             tf.mkdirs();
@@ -37,6 +42,14 @@ public class copier {
 
         File folder = new File("TurtlePrograms");
         for (File f : folder.listFiles()) {
+            boolean skip = false;
+                for (String string : filesToKeep) {
+                    if (f.getName().equalsIgnoreCase(string)){
+                        skip = true;
+                    }
+                }
+                if (skip)
+                    continue;
             try {
                 if (f.isDirectory()) {
                     for (File g : f.listFiles()) {
