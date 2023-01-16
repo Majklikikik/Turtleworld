@@ -78,7 +78,7 @@ end
 --Processes the answer of a slave turtles
 function processAnswer()
     gotoCommunication()
-    local answer = uncompressMessage(textutils.unserialize(comm_getMessage()))
+    local answer = uncompressMessage(textutils.unserialize(uncompress(comm_getMessage())))
     log("Turtle returned with Answer:")
     log(answer)
     return answer.turtleName
@@ -103,7 +103,7 @@ function sendUseMachine(step)
             turtle.drop()
         end
     end
-    comm_sendMessage(textutils.serialize(compressMessage(msg)))
+    comm_sendMessage(compress(textutils.serialize(compressMessage(msg))))
 end
 
 function executeNextStep(step)

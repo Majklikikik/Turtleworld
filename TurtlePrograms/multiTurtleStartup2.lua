@@ -15,7 +15,7 @@ while true do
         move_forward()
         write_pos()
     end
-    comm_sendMessage(textutils.serialize(compressMessage(answer)))
-    command = uncompressMessage(textutils.unserialize(comm_getMessage()))
+    comm_sendMessage(compress(textutils.serialize(compressMessage(answer))))
+    command = uncompressMessage(textutils.unserialize(uncompress(comm_getMessage())))
     answer = processCommand(command)
 end
