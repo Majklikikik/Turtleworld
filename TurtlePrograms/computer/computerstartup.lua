@@ -106,6 +106,8 @@ function sendUseMachine(step)
             turtle.drop()
         end
     end
+    log(msg)
+    log(compress(textutils.serialize(compressMessage(msg))))
     comm_sendMessage(compress(textutils.serialize(compressMessage(msg))))
 end
 

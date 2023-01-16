@@ -133,9 +133,9 @@ function comm_getMessage ()
 		char1= comm_read()
 		char2= comm_read()
 		i = i+ 1
-		if i % 400 == 0 then
+		if i % 39 == 0 then
 			print()
-			term.write(i)
+			--term.write(i)
 		end
 	end
 	print()
