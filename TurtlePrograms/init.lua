@@ -106,7 +106,7 @@ function initProgressFiles()
 end
 
 function initComputerFile()
-	--local state = textutils.unserialize(uncompress(comm_getMessage()))
+	--local state = uncompress(textutils.unserialize(comm_getMessage()))
 	local state = {}
 	state.turtleCount = 1
 	state.resources = getTotalItemCounts()
