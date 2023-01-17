@@ -87,10 +87,10 @@ function processAnswer()
 end
 
 function sendUseMachine(step)
-    local msg = {}
-    msg.type = actionTypes.useMachine
     setRecipe(step.name)
-
+    
+    local msg = {}
+    msg.type = actionTypes.MACHINE_USING
     msg.itemsNeeded = itemsNeededForExecutingMaxOneStack(step)
 
     local count = math.min(step.availableActionCount, recipe_maxCount)
@@ -107,6 +107,16 @@ function sendUseMachine(step)
             turtle.drop()
         end
     end
+    log(msg)
+    log(compress(textutils.serialize(compressMessage(msg))))
+    comm_sendMessage(compress(textutils.serialize(compressMessage(msg))))
+end
+
+function sendMining(step)   
+    log(step) 
+    local msg = {}
+    msg.type = actionTypes.MINING
+
     log(msg)
     log(compress(textutils.serialize(compressMessage(msg))))
     comm_sendMessage(compress(textutils.serialize(compressMessage(msg))))
@@ -133,6 +143,9 @@ function executeNextStep(step)
         sendUseMachine(step)
 
     elseif step.type == actionTypes.MINING then
+        gotoCommunication()
+        sendMining(step)
+
     elseif step.type == actionTypes.GATHERING then
     elseif step.type == actionTypes.REQUEUE then
     elseif step.type == actionTypes.FARMING then

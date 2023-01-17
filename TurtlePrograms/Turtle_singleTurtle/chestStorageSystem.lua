@@ -254,7 +254,8 @@ function getItemsOneType(itemname, count)
 end
 
 function getmissingItems()
-	--log("Getting missing items!")
+	log("Getting missing items!")	
+	log(itemsWanted)
 	countAndSortInventory()
 	local copyItemsWanted = {} -- List of items needed for crafting, local copy
 	for item, _ in pairs(itemsWanted) do

@@ -35,10 +35,6 @@ end
 
 
 function smeltMultiTurtle(furnaceNum)
-    if itemcount>64 then
-        log("Error, smeltSingleTurtleMaxOneStack called with more than one stack! That should not have happened...")
-        error("Too many items")
-    end
     navigateCoordinates(6, houseGroundLevel, 7)
     navigateCoordinates(6, houseGroundLevel , 13)
     navigateCoordinates(5, houseGroundLevel , 13)
@@ -52,7 +48,7 @@ function smeltMultiTurtle(furnaceNum)
     move_up()
     move_forward()
     countInventory()
-    selectOtherItem("minecraft:coal")
+    selectOtherItem()
     turtle.dropDown()
     move_back()
     move_back()

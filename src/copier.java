@@ -12,6 +12,10 @@ public class copier {
         String[] filesToKeep = { "startup", "bossState.michi", "pos.txt" };
         removeOldFiles(pathname, filesToKeep);
         copyNewFiles(pathname, filesToKeep);
+        pathname = "I:\\Games\\Minecraft\\Instances\\167b0fe2-0022-4b7b-ad26-ef6e16e05a8e\\saves\\Turtles\\computercraft\\disk\\0";
+        filesToKeep = new String[] { "startup", "bossState.michi", "pos.txt" };
+        //removeOldFiles(pathname, filesToKeep);
+        //copyNewFiles(pathname, filesToKeep);
     }
 
     public static void removeOldFiles(String pathname, String[] filesToKeep) {

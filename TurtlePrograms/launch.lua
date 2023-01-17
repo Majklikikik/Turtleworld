@@ -169,6 +169,7 @@ function buildBase()
     navigateCoordinates(25, houseGroundLevel, 5)
     navigateCoordinates(basespots_chestBase.x, houseGroundLevel, z)
     navigate(basespots_chestBase)
+    turn(directions.NORTH)    
 end
 
 function switchToBossMode()
@@ -218,6 +219,7 @@ addFarm("minecraft:sugar_cane")
 
 collectResourcesForBase()
 craftBaseStuff()
+--addBrickRoadToQueue()
 
 buildBase()
 switchToBossMode()

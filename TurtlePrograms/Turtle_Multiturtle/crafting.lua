@@ -96,7 +96,7 @@ function generateCraftingPlanForItemList(itemList, itemsAvailable)
 end
 
 -- Crafts an Item, withouth recursion steps
-function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItems)
+function craft(recipeID, count)
     setRecipe(recipeID, count)
     if recipeID == "computercraft:turtle_mining_crafty" then
         craftTurtle(recipeID, count)
@@ -104,27 +104,6 @@ function craft(recipeID, count, checkForAvailability, alsoGetAlreadyExistingItem
         return true
     end
     log("Crafting " .. recipeID .. " x " .. count .. " directly")
-    checkForAvailability = checkForAvailability or false
-    if checkForAvailability then
-        log("Warning: checkForAvailability is set true in craft: shouldn't be so!")
-        if not itemsToCraftAvailable(itemname, count, false, alsoGetAlreadyExistingItems) then
-            logHasItem(recipeID)
-            return false
-        end
-    end
-    if (alsoGetAlreadyExistingItems) then
-        log("Warning: alsoGetAlreadyExistingItems is set true in craft: shouldn't be so!")
-        local max = maximumItemCountAvailable(recipeID)
-        if max >= count then
-            log("Items already available in Chests/Inventory!")
-            getItemsOneType(recipeID, count)
-        else
-            craft(itemname, count - max, false, false)
-            getItemsOneType(recipeID, max)
-        end
-        logHasItem(recipeID)
-        return true
-    end
     log("Getting items!")
     log("Crafting " .. count .. " items, maximal count of items to be crafted in one Batch is " .. recipe_maxCount)
     -- if too many items need to be crafted, crafting needs to be repeated multiple times
@@ -169,7 +148,7 @@ end
 
 -- crafts exactly one crafty mining turtle
 function craftTurtle(recipeID, count)
-    sumInventoryAndAllChests()
+    --sumInventoryAndAllChests()
     for i, _ in pairs(itemsWanted) do
         itemsWanted[i] = nil
     end
@@ -186,7 +165,7 @@ function craftTurtle(recipeID, count)
     selectItem("computercraft:turtle_normal")
     turtle.transferTo(13)
 
-    sumInventoryAndAllChests()
+    --sumInventoryAndAllChests()
     for i, _ in pairs(itemsWanted) do
         itemsWanted[i] = nil
     end

@@ -18,11 +18,10 @@ function processCommand(command)
 end
 
 function executeUseMachine(command)
-    if command.args[1] == 0 then
-        smeltMultiTurtle(furnaceNum)
+    if command.machine[1] == 1 then
+        smeltMultiTurtle(command.machine[2])
     else
-        log("Unknown Machine: ")
-        log(command.args[1])
+        log("Unknown Machine: " .. command.machine[1])
         log(command)
     end
 end

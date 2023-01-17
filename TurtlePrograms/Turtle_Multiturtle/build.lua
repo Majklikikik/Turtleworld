@@ -282,6 +282,17 @@ function selectItem(itemid)
     error("Expected item: " .. itemid .. " not in inventory")
 end
 
+function selectOtherItem()
+    countInventory()
+    for i = 1, 16 do
+        if turtle.getItemDetail(i) ~= nil then
+            turtle.select(i)
+            return
+        end
+    end
+    error("Expected item not in inventory")
+end
+
 function getYPos()
     while turtle.digUp() or turtle.up() do end
     local height = 255
