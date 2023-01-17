@@ -143,13 +143,18 @@ function executeNextStep(step)
         sendUseMachine(step)
 
     elseif step.type == actionTypes.MINING then
+        log("Not implemented: " .. actionTypes.MINING)
         gotoCommunication()
         sendMining(step)
 
     elseif step.type == actionTypes.GATHERING then
+        log("Not implemented: " .. actionTypes.GATHERING)
     elseif step.type == actionTypes.REQUEUE then
+        log("Not implemented: " .. actionTypes.REQUEUE)
     elseif step.type == actionTypes.FARMING then
+        log("Not implemented: " .. actionTypes.FARMING)
     elseif step.type == actionTypes.EXECUTING then
+        log("Not implemented: " .. actionTypes.EXECUTING)
     end
 end
 

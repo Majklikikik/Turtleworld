@@ -21,13 +21,13 @@ where preconditions[i] is itself an array, containing the # multiplicity, how ma
 
 function requeueStep()
     local ret = {}
+    --ret.name = "requeue"
     ret.type = actionTypes.REQUEUE
-    ret.totalActionCount = 1
-    ret.itemsDone = 0
-    ret.outMult = 1
-    ret.preconditions = {}
-    ret.activeActionCount = 0
-    ret.name = "requeue"
+    --ret.totalActionCount = 1
+    --ret.itemsDone = 0
+    --ret.outMult = 1
+    --ret.preconditions = {}
+    --ret.activeActionCount = 0
     return ret
 end
 
