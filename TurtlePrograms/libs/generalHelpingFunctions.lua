@@ -77,7 +77,7 @@ function spiralNumberToCoordinateArray(num)
 end
 
 function logNameOfBlockInFront()
-    a, b = turtle.inspect()
+    local a,b=turtle.inspect()
     if a then log(b.name)
     else log(b)
     end
@@ -220,8 +220,15 @@ function compressMessage(msg)
         elseif (i == "machine") then ret["mn"] = msg[i]
         elseif (i == "stepNum") then ret["sN"] = msg[i]
         elseif (i == "type") then
-            if msg[i] == answerTypes.NOTHING then ret["t"] = "n"
-            elseif msg[i] == answerTypes.ACTION_DONE then ret["t"] = "d"
+            if msg[i] == answerTypes.NOTHING then ret["t"] = "a"
+            elseif msg[i] == answerTypes.ACTION_DONE then ret["t"] = "b"
+            elseif msg[i] == actionTypes.CRAFTING then ret["t"] = "c"
+            elseif msg[i] == actionTypes.MACHINE_USING then ret["t"] = "d"
+            elseif msg[i] == actionTypes.MINING then ret["t"] = "e"
+            elseif msg[i] == actionTypes.GATHERING then ret["t"] = "f"
+            elseif msg[i] == actionTypes.FARMING then ret["t"] = "g"
+            elseif msg[i] == actionTypes.EXECUTING then ret["t"] = "h"
+            elseif msg[i] == actionTypes.REQUEUE then ret["t"] = "i"
             else ret["t"] = msg[i] end
         else ret[i] = msg[i]
         end
@@ -238,8 +245,15 @@ function uncompressMessage(msg)
         elseif (i == "mn") then ret["machine"] = msg[i]
         elseif (i == "sN") then ret["stepNum"] = msg[i]
         elseif (i == "t") then
-            if msg[i] == "n" then ret["type"] = answerTypes.NOTHING
-            elseif msg[i] == "d" then ret["type"] = answerTypes.ACTION_DONE
+            if msg[i] == "a" then ret["type"] = answerTypes.NOTHING
+            elseif msg[i] == "b" then ret["type"] = answerTypes.ACTION_DONE
+            elseif msg[i] == "c" then ret["type"] = actionTypes.CRAFTING
+            elseif msg[i] == "d" then ret["type"] = actionTypes.MACHINE_USING
+            elseif msg[i] == "e" then ret["type"] = actionTypes.MINING
+            elseif msg[i] == "f" then ret["type"] = actionTypes.GATHERING
+            elseif msg[i] == "g" then ret["type"] = actionTypes.FARMING
+            elseif msg[i] == "h" then ret["type"] = actionTypes.EXECUTING
+            elseif msg[i] == "i" then ret["type"] = actionTypes.REQUEUE
             else ret["type"] = msg[i] end
         else ret[i] = msg[i]
         end
