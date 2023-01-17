@@ -17,5 +17,6 @@ while true do
     end
     comm_sendMessage(compress(textutils.serialize(compressMessage(answer))))
     command = uncompressMessage(textutils.unserialize(uncompress(comm_getMessage())))
+    log(command)
     answer = processCommand(command)
 end

@@ -5,6 +5,15 @@ function processCommand(command)
         answer.type = answerTypes.ACTION_DONE
         answer.turtleName = os.getComputerLabel()
     elseif command.type == actionTypes.REQUEUE then
+        turn(directions.EAST)
+        move_forward(1)       
+        turn(directions.SOUTH)
+        move_forward(8)   
+        turn(directions.WEST)
+        move_forward(1)         
+        navigateCoordinates(basespots_queue.x,houseGroundLevel,2)
+        turn(directions.NORTH)
+        while current_pos.z<basespots_queue.z do moveOverGround() end
     elseif command.type == actionTypes.EXECUTING then
     elseif command.type == actionTypes.FARMING then
     elseif command.type == actionTypes.GATHERING then

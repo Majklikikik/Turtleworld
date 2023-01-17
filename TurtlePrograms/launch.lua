@@ -174,7 +174,7 @@ end
 
 function switchToBossMode()
     fs.delete("startup")
-    fs.copy("computerstartup.lua", "startup")
+    --fs.copy("computerstartup", "startup")
     os.setComputerLabel("Boss")
     require("communication")
     require("init")

@@ -122,6 +122,15 @@ function sendMining(step)
     comm_sendMessage(compress(textutils.serialize(compressMessage(msg))))
 end
 
+function requeue()   
+    local msg = {}
+    msg.type = actionTypes.REQUEUE
+
+    log(msg)
+    log(compress(textutils.serialize(compressMessage(msg))))
+    comm_sendMessage(compress(textutils.serialize(compressMessage(msg))))
+end
+
 function executeNextStep(step)
     if step.type == actionTypes.CRAFTING then
         --just craft
@@ -144,13 +153,13 @@ function executeNextStep(step)
 
     elseif step.type == actionTypes.MINING then
         log("Not implemented: " .. actionTypes.MINING)
-        gotoCommunication()
         sendMining(step)
 
     elseif step.type == actionTypes.GATHERING then
         log("Not implemented: " .. actionTypes.GATHERING)
     elseif step.type == actionTypes.REQUEUE then
         log("Not implemented: " .. actionTypes.REQUEUE)
+        requeue()
     elseif step.type == actionTypes.FARMING then
         log("Not implemented: " .. actionTypes.FARMING)
     elseif step.type == actionTypes.EXECUTING then

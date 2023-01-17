@@ -113,9 +113,12 @@ function comm_sendMessage(message)
 			log("Error: Unknown char: " .. char .. ".")
 			error("Unknown Char in Message")
 		end
+		log(nums[1])
 		comm_send(nums[1])
+		log(nums[2])
 		comm_send(nums[2])
 	end
+	log("1")
 	comm_send(15)
 	comm_send(15)
 	log("Sent Message")

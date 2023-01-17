@@ -10,10 +10,12 @@ public class copier {
         // "C:\\Users\\micha\\AppData\\Local\\.ftba\\instances\\5899d8fc-0033-442b-8f38-a507149f6083\\saves\\Turtleworld\\computercraft\\computer\\19";
         String bossPath = "I:\\Games\\Minecraft\\Instances\\167b0fe2-0022-4b7b-ad26-ef6e16e05a8e\\saves\\Turtles\\computercraft\\computer\\0";
         String diskPath = "I:\\Games\\Minecraft\\Instances\\167b0fe2-0022-4b7b-ad26-ef6e16e05a8e\\saves\\Turtles\\computercraft\\disk\\0";
-        String[][] filesToKeepComputer = { { "bossState.michi", null }, { "pos.txt", null },
-                { "computerstartup.lua", "startup" } };
+        String[][] filesToKeepComputer = { { "bossState.michi", null }, { "pos.txt",
+                null }, { "computerstartup.lua", "startup" } };
         String[][] filesToKeepDisk = { { "multiTurtleStartup1.lua", "startup" },
-                { "multiturtleStartup2", "turtleStartup" } };
+                { "multiturtleStartup2", "turtleStartup" },
+                { "turtleNumber", null },
+                { "height", null } };
         removeOldFiles(bossPath, filesToKeepComputer);
         removeOldFiles(diskPath, filesToKeepDisk);
         copyNewFiles(bossPath, filesToKeepComputer);
@@ -66,7 +68,7 @@ public class copier {
                             }
                         }
                         if (!skip)
-                            Files.copy(file2.toPath(), Path.of(path + "\\" + file2.getName()),
+                            Files.copy(file2.toPath(), Path.of(path + "\\" + file2.getName().replace(".lua", "")),
                                     StandardCopyOption.REPLACE_EXISTING);
                     }
                 } else {
@@ -79,7 +81,7 @@ public class copier {
                         }
                     }
                     if (!skip)
-                        Files.copy(file.toPath(), Path.of(path + "\\" + file.getName()),
+                        Files.copy(file.toPath(), Path.of(path + "\\" + file.getName().replace(".lua", "")),
                                 StandardCopyOption.REPLACE_EXISTING);
                 }
             } catch (IOException e) {

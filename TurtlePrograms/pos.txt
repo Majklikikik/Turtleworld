@@ -1,8 +1,0 @@
-{
-  direction = 1,
-  position = {
-    y = 0,
-    x = 0,
-    z = 0,
-  },
-}
